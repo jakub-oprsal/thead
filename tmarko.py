@@ -10,7 +10,7 @@ from marko.ext.latex_renderer import LatexRenderer as MarkoLatexRenderer
 
 
 class InlineMath(marko.inline.InlineElement):
-    
+
     priority = 10
     pattern = re.compile(r"\$\s*([^$]+)\s*\$")
     parse_children = False
@@ -113,8 +113,11 @@ class TheoremEnv(marko.block.BlockElement):
         return state
 
 
+class ElementsExt:
+    elements = [InlineMath, DisplayMath, TheoremEnv, Quotes, Label, RefLabel, Cite]
+
+
 class LatexRenderer(MarkoLatexRenderer):
-    """Mixin for marko's native TeXRenderer"""
 
     def render_document(self, element):
         return self.render_children(element)
@@ -134,7 +137,7 @@ class LatexRenderer(MarkoLatexRenderer):
         return f"\\emph{{{children}}}"
 
     def render_inline_math(self, element):
-        return f'${element.content}$' 
+        return f'${element.content}$'
 
     def render_display_math(self, element):
         content = element.content
@@ -177,11 +180,7 @@ class LatexRenderer(MarkoLatexRenderer):
         return "".join(specials.get(s, s) for s in text)
 
 
-class MathExt:
-    elements = [InlineMath, DisplayMath, TheoremEnv, Quotes, Label, RefLabel, Cite]
-
-
-tmarko = marko.Markdown(marko.Parser, LatexRenderer, extensions=[MathExt])
+tmarko = marko.Markdown(marko.Parser, LatexRenderer, extensions=[ElementsExt])
 
 
 if __name__ == "__main__":

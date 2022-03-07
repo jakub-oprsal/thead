@@ -18,7 +18,7 @@ HEADER = '''\\documentclass{{lipics-v2021}}
 \\Copyright{{{_copyright}}}
 \\funding{{{funding}}}
 
-\\keywords{{{keywords}}}
+{keywords}
 
 {ccs}
 
@@ -64,7 +64,7 @@ def header(data):
         authors = "\n".join(map(render_author, data['authors'])),
         authorsrunning = authors_list(data['authors'], short=True),
         _copyright = authors_list(data['authors']),
-        keywords = ", ".join(data['keywords']),
+        keywords = render_keywords(data['keywords']),
         ccs = render_ccs(data['ccs2012']) if 'ccs2012' in data else '',
         bibfile = ",".join(data['bibliography']),
         funding = render_funding(data['funding']) if 'funding' in data else '',
