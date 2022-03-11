@@ -28,6 +28,7 @@ HEADER = '''\\documentclass[{classoptions}]{{acmart}}
 '''
 
 FOOTER = '''
+{acks}
 \\bibliographystyle{{ACM-Reference-Format}}
 \\bibliography{{{bibfile}}}
 
@@ -54,6 +55,9 @@ def render_funding(funds):
             if 'note' in grant)
     return render_command('thanks', funding_note)
 
+def render_acks(acks):
+    return render_env('acks', acks)
+
 
 def header(data):
     return HEADER.format(
@@ -67,4 +71,6 @@ def header(data):
         include = include_file(data['header_include']) if 'header_include' in data else '')
 
 def footer(data):
-    return FOOTER.format(bibfile = ",".join(data['bibliography']))
+    return FOOTER.format(
+            bibfile = ",".join(data['bibliography']),
+            acks = render_acks(data['acknowledgements']) if 'acknowledgements' in data else '')

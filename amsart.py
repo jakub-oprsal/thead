@@ -31,7 +31,7 @@ HEADER = """\\documentclass[a4paper]{{amsart}}
 
 \\begin{{document}}
 
-\\title{{{title}}}
+{title}
 
 {authors}
 {thanks}
@@ -42,6 +42,7 @@ HEADER = """\\documentclass[a4paper]{{amsart}}
 """
 
 FOOTER = """
+{acks}
 \\bibliographystyle{{alphaurl}}
 \\bibliography{{{bibfile}}}
 
@@ -72,17 +73,27 @@ def render_pdfmeta(authors, title):
             title=title,
             author_list=authors_list(authors, short=True))
 
+def render_title(data):
+    if 'shorttitle' in data:
+        return render_command('title', data['title'], data['shorttitle'])
+    else:
+        return render_comamnd('title', data['title'])
+
+def render_acks(acks):
+    return f'\subsection*{{Acknowledgements}}\n\n{acks}\n'
 
 def header(data):
     return HEADER.format(
-        title = data['title'],
+        title = render_title(data),
         authors = "\n".join(map(render_author, data['authors'])),
         pdfmeta = render_pdfmeta(data['authors'], data['title']),
         keywords = render_keywords(data['keywords']) if 'keywords' in data else '',
         abstract = render_abstract(data['abstract']) if 'abstract' in data else '',
         thanks = render_funding(data['funding']) if 'funding' in data else '',
-        include = include_file(data['header_include']) if 'header_include' in data else '')
+        include = include_file(data['header_include']) if 'header_include' in
+        data else '')
 
 def footer(data):
     return FOOTER.format(
-        bibfile = ", ".join(data['bibliography']))
+        bibfile = ",".join(data['bibliography']),
+        acks = render_acks(data['acknowledgements']) if 'acknowledgements' in data else '')
