@@ -4,15 +4,19 @@
 #
 import re, codecs
 
+def indent(string):
+    return "\n".join(map(lambda line: "  " + line, string.split("\n")))
+
+
 def render_env(envname, content):
-    return f'\\begin{{{envname}}}\n{content}\n\\end{{{envname}}}\n'
+    return f'''\\begin{{{envname}}}
+{indent(content)}
+\\end{{{envname}}}
+'''
 
 
-def render_command(command, a, b=None):
-    if b is not None:
-        atr = f'[{b}]'
-    else:
-        atr = ''
+def render_command(command, a, b=''):
+    atr = f'[{b}]' if b != '' else ''
     return f'\\{command}{atr}{{{a}}}\n'
 
 

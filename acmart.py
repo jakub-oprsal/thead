@@ -1,6 +1,6 @@
 from common import *
 
-HEADER = '''\\documentclass[{classoptions}]{{acmart}}
+HEADER = '''{documentclass}
 \\geometry{{a4paper}}
 
 \\usepackage[utf8]{{inputenc}}
@@ -59,9 +59,19 @@ def render_acks(acks):
     return render_env('acks', acks)
 
 
-def header(data):
+def header(data, **kwargs):
+    cls_opts = ['nonacm', '11pt']
+    if 'classoptions' in kwargs:
+        cls_opts += kwargs['classoptions']
+    if 'anonymous' in kwargs and kwargs['anonymous']:
+        cls_opts.append('anonymous')
+    documentclass = render_command(
+            'documentclass',
+            'acmart',
+            ','.join(cls_opts))
+
     return HEADER.format(
-        classoptions = 'nonacm,11pt',
+        documentclass = documentclass,
         title = data['title'],
         authors = "\n".join(map(render_author, data['authors'])),
         ccsdesc = render_ccs(data['ccs2012']) if 'ccs2012' in data else '',

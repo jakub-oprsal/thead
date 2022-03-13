@@ -20,7 +20,6 @@ HEADER = """\\documentclass[a4paper]{{amsart}}
 \\newtheorem{{corollary}}[theorem]{{Corollary}}
 \\newtheorem{{conjecture}}[theorem]{{Conjecture}}
 \\newtheorem{{claim}}[theorem]{{Claim}}
-
 \\theoremstyle{{definition}}
 \\newtheorem{{definition}}[theorem]{{Definition}}
 \\newtheorem{{example}}[theorem]{{Example}}
@@ -32,13 +31,13 @@ HEADER = """\\documentclass[a4paper]{{amsart}}
 \\begin{{document}}
 
 {title}
-
 {authors}
 {thanks}
 {abstract}
 {keywords}
 
 \\maketitle
+
 """
 
 FOOTER = """
@@ -48,6 +47,8 @@ FOOTER = """
 
 \\end{{document}}
 """
+
+
 
 def render_author(author):
     out = render_command('author', author['name'])
@@ -64,14 +65,11 @@ def render_funding(funds):
             if 'note' in grant)
     return render_command('thanks', funding_note)
 
-PDFMETA="""\hypersetup{{%
-    pdftitle={{{title}}},
-    pdfauthor={{{author_list}}}}}"""
-
 def render_pdfmeta(authors, title):
-    return PDFMETA.format(
-            title=title,
-            author_list=authors_list(authors, short=True))
+    author_list=authors_list(authors, short=True)
+    return f'''\hypersetup{{%
+    pdftitle={{{title}}},
+    pdfauthor={{{author_list}}}}}'''
 
 def render_title(data):
     if 'shorttitle' in data:
@@ -82,7 +80,7 @@ def render_title(data):
 def render_acks(acks):
     return f'\subsection*{{Acknowledgements}}\n\n{acks}\n'
 
-def header(data):
+def header(data, **kwargs):
     return HEADER.format(
         title = render_title(data),
         authors = "\n".join(map(render_author, data['authors'])),
