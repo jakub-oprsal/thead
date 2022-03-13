@@ -3,15 +3,23 @@
 # Common functions for rendering TeX headers and content
 #
 import re, codecs
+from itertools import chain
+
 
 def indent(string):
     return "\n".join(map(lambda line: "  " + line, string.split("\n")))
 
 
 def render_env(envname, content):
-    return f'''\\begin{{{envname}}}
-{indent(content)}
-\\end{{{envname}}}
+    return (f'\\begin{{{envname}}}\n'
+            f'{indent(content)}\n'
+            f'\\end{{{envname}}}\n')
+
+render_begin = '\\begin{document}\n'
+render_end = '\\end{document}\n'
+
+render_encs = r'''\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 '''
 
 
@@ -87,3 +95,10 @@ def include_file(filename):
 
     with codecs.open(filename, encoding='utf-8') as file:
         return file.read().strip() + "\n"
+
+## BIB
+
+def render_bib(bibstyle, bibfiles):
+    out = render_command('bibliographystyle', bibstyle)
+    out += render_command('bibliography', ','.join(bibfiles))
+    return out

@@ -1,53 +1,32 @@
 from common import *
 
-HEADER = """\\documentclass[a4paper]{{amsart}}
-
-\\usepackage[utf8]{{inputenc}}
-\\usepackage[T1]{{fontenc}}
-
-\\usepackage{{tikz}}
-\\definecolor{{purple}}{{cmyk}}{{0.55,1,0,0.15}}
-\\definecolor{{darkblue}}{{cmyk}}{{1,0.58,0,0.21}}
-\\usepackage[colorlinks,
+render_include = r'''\usepackage{tikz}
+\definecolor{purple}{cmyk}{0.55,1,0,0.15}
+\definecolor{darkblue}{cmyk}{1,0.58,0,0.21}
+\usepackage[colorlinks,
   linkcolor=black,
   urlcolor=darkblue,
-  citecolor=purple]{{hyperref}}
-\\urlstyle{{same}}
+  citecolor=purple]{hyperref}
+\urlstyle{same}
 
-\\newtheorem{{theorem}}{{Theorem}}[section]
-\\newtheorem{{lemma}}[theorem]{{Lemma}}
-\\newtheorem{{proposition}}[theorem]{{Proposition}}
-\\newtheorem{{corollary}}[theorem]{{Corollary}}
-\\newtheorem{{conjecture}}[theorem]{{Conjecture}}
-\\newtheorem{{claim}}[theorem]{{Claim}}
-\\theoremstyle{{definition}}
-\\newtheorem{{definition}}[theorem]{{Definition}}
-\\newtheorem{{example}}[theorem]{{Example}}
-\\newtheorem{{remark}}[theorem]{{Remark}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{claim}[theorem]{Claim}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+'''
 
-{include}
-{pdfmeta}
 
-\\begin{{document}}
-
-{title}
-{authors}
-{thanks}
-{abstract}
-{keywords}
-
-\\maketitle
-
-"""
-
-FOOTER = """
-{acks}
-\\bibliographystyle{{alphaurl}}
-\\bibliography{{{bibfile}}}
-
-\\end{{document}}
-"""
-
+def render_pdfmeta(authors, title):
+    author_list = authors_list(authors, short=True)
+    return f'''\hypersetup{{%
+    pdftitle  = {{{title}}},
+    pdfauthor = {{{author_list}}}}}\n'''
 
 
 def render_author(author):
@@ -59,39 +38,62 @@ def render_author(author):
         out += render_command('email', author['email'])
     return out
 
+
 def render_funding(funds):
-    funding_note = "\n".join(grant['note']
+    funding_note = '\n'.join(grant['note']
             for grant in funds
             if 'note' in grant)
     return render_command('thanks', funding_note)
 
-def render_pdfmeta(authors, title):
-    author_list=authors_list(authors, short=True)
-    return f'''\hypersetup{{%
-    pdftitle={{{title}}},
-    pdfauthor={{{author_list}}}}}'''
-
-def render_title(data):
-    if 'shorttitle' in data:
-        return render_command('title', data['title'], data['shorttitle'])
-    else:
-        return render_comamnd('title', data['title'])
 
 def render_acks(acks):
-    return f'\subsection*{{Acknowledgements}}\n\n{acks}\n'
+    return f'\subsection*{{Acknowledgements}}\n\n{acks.strip()}\n'
+
 
 def header(data, **kwargs):
-    return HEADER.format(
-        title = render_title(data),
-        authors = "\n".join(map(render_author, data['authors'])),
-        pdfmeta = render_pdfmeta(data['authors'], data['title']),
-        keywords = render_keywords(data['keywords']) if 'keywords' in data else '',
-        abstract = render_abstract(data['abstract']) if 'abstract' in data else '',
-        thanks = render_funding(data['funding']) if 'funding' in data else '',
-        include = include_file(data['header_include']) if 'header_include' in
-        data else '')
+    cls_opts = list(kwargs['classoptions']) if 'classoptions' in kwargs else []
+    cls_opts.append('a4paper')
+
+    headers = [
+        render_command(
+            'documentclass',
+            'amsart',
+            ','.join(cls_opts)),
+        render_encs,
+        render_include]
+
+    if 'header_include' in data:
+        headers.append(include_file(data['header_include']))
+
+    shorttitle = data['shorttitle'] if 'shorttitle' not in data else ''
+    headers += [
+            render_pdfmeta(data['authors'], data['title']),
+            render_begin,
+            render_command('title', data['title'], shorttitle),
+            '\n'.join(map(render_author, data['authors']))]
+
+    if 'funding' in data:
+        headers.append(render_funding(data['funding']))
+
+    if 'abstract' in data:
+        headers.append(render_abstract(data['abstract']))
+
+    if 'keywords' in data:
+        headers.append(render_keywords(data['keywords']))
+
+    headers += ['\\maketitle\n', '']
+
+    return '\n'.join(headers)
+
 
 def footer(data):
-    return FOOTER.format(
-        bibfile = ",".join(data['bibliography']),
-        acks = render_acks(data['acknowledgements']) if 'acknowledgements' in data else '')
+    footers = ['']
+
+    if 'acknowledgements' in data:
+        footers.append(render_acks(data['acknowledgements']))
+
+    footers += [
+            render_bib('alphaurl', data['bibliography']),
+            render_end]
+
+    return '\n'.join(footers)
