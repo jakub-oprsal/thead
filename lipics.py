@@ -81,8 +81,8 @@ def header(data, **kwargs):
     if 'acknowledgements' in data:
         headers.append(render_acks(data['acknowledgements']))
 
-    headers += [render_begin,
-            '\\maketitle\n',
+    headers += [begin_document,
+            maketitle,
             render_abstract(data['abstract']),
             '']
 
@@ -92,4 +92,4 @@ def header(data, **kwargs):
 def footer(data):
     return '\n'.join(('',
             render_bib('plainurl', data['bibliography']),
-            render_end))
+            end_document))

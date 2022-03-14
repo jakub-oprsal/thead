@@ -15,12 +15,12 @@ def render_env(envname, content):
             f'{indent(content)}\n'
             f'\\end{{{envname}}}\n')
 
-render_begin = '\\begin{document}\n'
-render_end = '\\end{document}\n'
-
 render_encs = r'''\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 '''
+maketitle = '\\maketitle\n'
+begin_document = '\\begin{document}\n'
+end_document = '\\end{document}\n'
 
 
 def render_command(command, a, b=''):

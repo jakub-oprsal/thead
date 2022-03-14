@@ -65,10 +65,10 @@ def header(data, **kwargs):
     if 'header_include' in data:
         headers.append(include_file(data['header_include']))
 
-    shorttitle = data['shorttitle'] if 'shorttitle' not in data else ''
+    shorttitle = data['shorttitle'] if 'shorttitle' in data else ''
     headers += [
             render_pdfmeta(data['authors'], data['title']),
-            render_begin,
+            begin_document,
             render_command('title', data['title'], shorttitle),
             '\n'.join(map(render_author, data['authors']))]
 
@@ -81,7 +81,7 @@ def header(data, **kwargs):
     if 'keywords' in data:
         headers.append(render_keywords(data['keywords']))
 
-    headers += ['\\maketitle\n', '']
+    headers += [maketitle, '']
 
     return '\n'.join(headers)
 
@@ -94,6 +94,6 @@ def footer(data):
 
     footers += [
             render_bib('alphaurl', data['bibliography']),
-            render_end]
+            end_document]
 
     return '\n'.join(footers)

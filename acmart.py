@@ -68,9 +68,7 @@ def header(data, **kwargs):
     if 'funding' in data:
         render_funding(data['funding'])
 
-    headers += [render_begin,
-            '\\maketitle\n',
-            '']
+    headers += [begin_document, maketitle, '']
 
     return '\n'.join(headers)
 
@@ -83,6 +81,6 @@ def footer(data):
 
     footers += [
             render_bib('ACM-Reference-Format', data['bibliography']),
-            render_end]
+            end_document]
 
     return '\n'.join(footers)
