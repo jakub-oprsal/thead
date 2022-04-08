@@ -89,12 +89,11 @@ def authors_list(authors, short=False):
 
 ## HEADER INCLUDE
 
-def include_file(filename):
+def include(filename, end=''):
     if not re.match(r'.*\.tex', filename):
         filename += '.tex'
-
     with codecs.open(filename, encoding='utf-8') as file:
-        return file.read().strip() + "\n"
+        return file.read().strip() + '\n' + end
 
 ## BIB
 

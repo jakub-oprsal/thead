@@ -50,7 +50,7 @@ def header(data, **kwargs):
         header_include]
 
     if 'header_include' in data:
-        headers.append(include_file(data['header_include']))
+        headers.append(include(data['header_include']))
 
     headers += [
         render_command('title', data['title']),

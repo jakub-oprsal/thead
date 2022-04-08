@@ -63,7 +63,7 @@ def header(data, **kwargs):
         render_include]
 
     if 'header_include' in data:
-        headers.append(include_file(data['header_include']))
+        headers.append(include(data['header_include']))
 
     shorttitle = data['shorttitle'] if 'shorttitle' in data else ''
     headers += [
