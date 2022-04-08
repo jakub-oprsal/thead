@@ -22,11 +22,12 @@ class InlineMath(marko.inline.InlineElement):
 class DisplayMath(marko.inline.InlineElement):
 
     priority = 10
-    pattern = re.compile(r'\\\[\s*\n((?:(?!\\\]).*\s*\n)*)\\\]\s*$', re.M)
+    pattern = re.compile(r'\\\[\s*(?:{([a-z]*\*?)})?\s*\n((?:(?!\\\]).*\s*\n)*)\\\]\s*$', re.M)
     parse_children = False
 
     def __init__(self, match):
-        self.content = match.group(1).rstrip()
+        self.envname = match.group(1) if match.group(1) else None
+        self.content = match.group(2).rstrip()
 
 
 class Quotes(marko.inline.InlineElement):
@@ -141,10 +142,13 @@ class LatexRenderer(MarkoLatexRenderer):
 
     def render_display_math(self, element):
         content = element.content
-        tex = ''
+        displaytex = ''
         for line in content.split('\n'):
-            tex += '  ' + line + '\n'
-        return f'\[\n{tex}\]'
+            displaytex += '  ' + line + '\n'
+        if element.envname is None:
+            return f'\[\n{displaytex}\]'
+        else:
+            return self._environment(element.envname, displaytex)
 
     def render_theorem_env(self, element):
         children = self.render_children(element).strip() + '\n'
