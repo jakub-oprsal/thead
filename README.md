@@ -8,8 +8,17 @@ The main goal of this tool is to be able to easily produce latex files using dif
 
 ## Usage
 
-Everything is work in progress. I will soon provide an example metadata file. The command is run as
+Everything is work in progress. I will soon provide an example metadata file. To get help on invocation, run
 
 ```
-python3 thead.py -c (acmart|lipics|amsart) [-o outfile.tex] infile.yaml
+python3 -m thead -h
+```
+
+## Installation
+
+
+Apparently, pip can install from github:
+
+```
+python3 -m pip install git+https://github.com/jakub-oprsal/thead
 ```

@@ -1,9 +1,7 @@
-# common.py
-#
-# Common functions for rendering TeX headers and content
-#
+'''
+Basic functions for building (more) complicated class compilers.
+'''
 import re, codecs
-from itertools import chain
 
 
 def indent(string):
@@ -15,20 +13,19 @@ def render_env(envname, content):
             f'{indent(content)}\n'
             f'\\end{{{envname}}}\n')
 
-render_encs = r'''\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-'''
-maketitle = '\\maketitle\n'
-begin_document = '\\begin{document}\n'
-end_document = '\\end{document}\n'
-
-
 def render_command(command, a, b=''):
     atr = f'[{b}]' if b != '' else ''
     return f'\\{command}{atr}{{{a}}}\n'
 
 
-## CCS CLASSIFICATION
+maketitle = '\\maketitle\n'
+begin_document = '\\begin{document}\n'
+end_document = '\\end{document}\n'
+render_encs = r'''\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+'''
+
+## CCS CLASIFICATION
 
 def render_ccs_tex(ccs):
     return ''.join(render_command('ccsdesc',
@@ -70,26 +67,23 @@ def shorten_name(name):
     initials = ".".join(map(lambda x: x[0], names[:-1]))
     return initials + ". " + names[-1]
 
-def join_names(names):
-    list_names = list(names)
-    if len(list_names) == 1:
-        return list_names[0]
-    elif len(list_names) == 2:
-        return ' and '.join(list_names)
+def _and(strs):
+    list_strs = list(strs)
+    if len(list_strs) == 1:
+        return list_strs[0]
+    elif len(list_strs) == 2:
+        return ' and '.join(list_strs)
     else:
-        return ', and '.join((', '.join(list_names[:-1]), list_names[-1]))
+        return ', and '.join((', '.join(list_strs[:-1]), list_names[-1]))
 
 def authors_list(authors, short=False):
-    if short:
-        return join_names(map(
-            lambda author: shorten_name(author['name']),
-            authors))
-    else:
-        return join_names(map(lambda author: author['name'], authors))
+    names = map(lambda author: author['name'], authors)
+    return _and(map(shorten_name, names)) if short else _and(names)
 
-## HEADER INCLUDE
 
 def include(filename, end=''):
+    ''' Includes content of a file given by name with or without ".tex"
+        extension. '''
     if not re.match(r'.*\.tex', filename):
         filename += '.tex'
     with codecs.open(filename, encoding='utf-8') as file:

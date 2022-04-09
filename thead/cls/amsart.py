@@ -1,4 +1,5 @@
-from common import *
+from .common import *
+
 
 render_include = r'''\usepackage{tikz}
 \definecolor{purple}{cmyk}{0.55,1,0,0.15}

@@ -1,4 +1,4 @@
-from common import *
+from .common import *
 
 
 header_include = r'''\geometry{a4paper}
