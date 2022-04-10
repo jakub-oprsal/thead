@@ -1,4 +1,4 @@
-import sys, codecs, yaml
+import sys, os, codecs, yaml
 import re
 from argparse import ArgumentParser
 from .parse import parse
@@ -51,17 +51,62 @@ def get_args(args):
     return parsed_args
 
 
+class Recipe:
+    def __init__(self, header, content, appendix, bib):
+        self.header = header
+        self.content = content
+        self.appendix = appendix
+        self.bib = bib
+
+
+def discover_recipe(path='.'):
+    ''' Discovers files with the content of the document. '''
+    content, appendix, bib, header = ([] for _ in range(4))
+    for direntry in os.scandir(path):
+        try:
+            fmatch = re.match(r'(.+)\.(tex|bib)', direntry.name)
+            if not direntry.is_file() or not fmatch:
+                continue
+        except OSError:
+            continue
+
+        name, ftype = fmatch.group(1), fmatch.group(2)
+        if ftype == 'bib':
+            bib.append(name)
+        elif ftype == 'tex':
+            if name == 'macro':
+                header.append('macro')
+            elif re.match(r'(content|[0-9]+[_-])', name):
+                content.append(name)
+            elif re.match(r'(appendix|[A-Z]+[_-])', name):
+                appendix.append(name)
+
+    if 'content' in content:
+        content = ['content']
+    else:
+        content.sort()
+    if 'appendix' in appendix:
+        appendix = ['appendix']
+    else:
+        appendix.sort()
+    return Recipe(header, content, appendix, bib)
+
+
+def read_recipe(yaml):
+    ''' Reads recipe from a yaml file. '''
+    pass
+
+
 if __name__ == '__main__':
     args = get_args(sys.argv[1:])
 
     with open(args.filename, 'r') as f:
         data = yaml.safe_load(f)
 
-    content = dict()
-    content['document'] = data['content']
-    if 'appendix' in data:
-        content['appendix'] = data['appendix']
+    recipe = discover_recipe()
 
     with codecs.open(args.out, mode='w', encoding='utf-8') as ofile:
-        for chunk in parse(data, content, args):
+        for chunk in parse(data, recipe, args):
             ofile.write(chunk)
+
+    print(f'Output written to {args.out}.')

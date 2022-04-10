@@ -58,8 +58,8 @@ def header(data, **kwargs):
             ','.join(cls_opts)),
         render_encs]
 
-    if 'header_include' in data:
-        headers.append(include(data['header_include']))
+    if 'include' in kwargs:
+        headers += [include(file) for file in kwargs['include']]
 
     if 'shorttitle' in data:
         headers.append(render_title(data['title'], data['shorttitle']))
@@ -89,7 +89,10 @@ def header(data, **kwargs):
     return '\n'.join(headers)
 
 
-def footer(data):
-    return '\n'.join(('',
-            render_bib('plainurl', data['bibliography']),
-            end_document))
+def footer(data, bib):
+    footers = ['']
+    if bib:
+        footers.append(render_bib('plainurl', bib))
+    footers.append(end_document)
+
+    return '\n'.join(footers)

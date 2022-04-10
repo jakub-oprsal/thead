@@ -1,8 +1,7 @@
 from .common import *
 
 
-header_include = r'''\geometry{a4paper}
-\citestyle{acmauthoryear}
+header_include = r'''\citestyle{acmauthoryear}
 \setcitestyle{nosort}
 
 \AtEndPreamble{%
@@ -33,11 +32,7 @@ def render_funding(funds):
 
 
 def header(data, **kwargs):
-    cls_opts = ['nonacm', '11pt']
-
-    if 'classoptions' in kwargs:
-        cls_opts += kwargs['classoptions']
-
+    cls_opts = kwargs['classoptions'] if 'classoptions' in kwargs else []
     if 'anonymous' in kwargs and kwargs['anonymous']:
         cls_opts.append('anonymous')
 
@@ -49,8 +44,8 @@ def header(data, **kwargs):
         render_encs,
         header_include]
 
-    if 'header_include' in data:
-        headers.append(include(data['header_include']))
+    if 'include' in kwargs:
+        headers += [include(file) for file in kwargs['include']]
 
     headers += [
         render_command('title', data['title']),
@@ -73,14 +68,12 @@ def header(data, **kwargs):
     return '\n'.join(headers)
 
 
-def footer(data):
+def footer(data, bib):
     footers = ['']
-
     if 'acknowledgements' in data:
         footers.append(render_env('acks', data['acknowledgements']))
-
-    footers += [
-            render_bib('ACM-Reference-Format', data['bibliography']),
-            end_document]
+    if bib:
+        footers.append(render_bib('ACM-Reference-Format', bib))
+    footers.append(end_document)
 
     return '\n'.join(footers)
