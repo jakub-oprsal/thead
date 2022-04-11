@@ -28,10 +28,10 @@ def parse(meta, recipe, args):
             include=recipe.header)
 
     ## BODY
-    include = include if args.include else \
+    _include = include if args.include else \
             lambda fn, end: render_command('input', fn) + end
     for filename in recipe.content:
-        yield include(filename, '\n')
+        yield _include(filename, '\n')
     if recipe.appendix:
         body += '\n\\appendix\n\n'
         for filename in recipe.appendix:

@@ -74,7 +74,7 @@ def _and(strs):
     elif len(list_strs) == 2:
         return ' and '.join(list_strs)
     else:
-        return ', and '.join((', '.join(list_strs[:-1]), list_names[-1]))
+        return ', and '.join((', '.join(list_strs[:-1]), list_strs[-1]))
 
 def authors_list(authors, short=False):
     names = map(lambda author: author['name'], authors)
