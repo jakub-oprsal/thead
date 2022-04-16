@@ -1,8 +1,8 @@
-import sys, os, codecs, yaml
-import re
+import sys, codecs, yaml, re
 from itertools import chain
 from argparse import ArgumentParser
 from .parse import parse
+from .recipe import Recipe
 
 
 def get_args(args):
@@ -38,6 +38,31 @@ def get_args(args):
             default = [])
 
     parser.add_argument(
+            "--header-include",
+            dest = "header",
+            help = "TeX file(s) to be included in the header",
+            action = "append",
+            default = [])
+
+    parser.add_argument(
+            "--content",
+            help = "Content of the document",
+            action = "append",
+            default = [])
+
+    parser.add_argument(
+            "--appendix",
+            help = "Appendix",
+            action = "append",
+            default = [])
+
+    parser.add_argument(
+            "--bib",
+            help = "Additional bibliography source",
+            action = "append",
+            default = [])
+
+    parser.add_argument(
             "--no-include",
             help = "Use '\input{...}' instead of including files.",
             dest = "include",
@@ -57,59 +82,14 @@ def get_args(args):
     return pargs
 
 
-class Recipe:
-    def __init__(self, header, content, appendix, bib):
-        self.header = header
-        self.content = content
-        self.appendix = appendix
-        self.bib = bib
-
-
-def discover_recipe(path='.'):
-    ''' Discovers files with the content of the document. '''
-    content, appendix, bib, header = ([] for _ in range(4))
-    for direntry in os.scandir(path):
-        try:
-            fmatch = re.match(r'(.+)\.(tex|bib)', direntry.name)
-            if not direntry.is_file() or not fmatch:
-                continue
-        except OSError:
-            continue
-
-        name, ftype = fmatch.group(1), fmatch.group(2)
-        if ftype == 'bib':
-            bib.append(name)
-        elif ftype == 'tex':
-            if name == 'macro':
-                header.append('macro')
-            elif re.match(r'(content|[0-9]+[_-])', name):
-                content.append(name)
-            elif re.match(r'(appendix|[A-Z]+[_-])', name):
-                appendix.append(name)
-
-    if 'content' in content:
-        content = ['content']
-    else:
-        content.sort()
-    if 'appendix' in appendix:
-        appendix = ['appendix']
-    else:
-        appendix.sort()
-    return Recipe(header, content, appendix, bib)
-
-
-def read_recipe(yaml):
-    ''' Reads recipe from a yaml file. '''
-    pass
-
-
 if __name__ == '__main__':
     args = get_args(sys.argv[1:])
 
     with open(args.filename, 'r') as f:
         data = yaml.safe_load(f)
 
-    recipe = discover_recipe()
+    recipe = Recipe()
+    recipe.discover()
 
     with codecs.open(args.out, mode='w', encoding='utf-8') as ofile:
         for chunk in parse(data, recipe, args):
