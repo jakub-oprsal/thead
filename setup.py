@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
         name = 'thead',
-        version = '0.0.3-alpha-2',
+        version = '0.0.3-alpha-3',
         description = 'Tools for generating LaTeX files from metadata',
         author = 'Jakub Opršal',
         author_email = 'jakub.oprsal@cs.ox.ac.uk',

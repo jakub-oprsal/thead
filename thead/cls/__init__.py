@@ -1,9 +1,10 @@
-from . import amsart, acmart, lipics
+from . import amsart, acmart, lipics, siamart
 
 CLS_MODULES = {
         'amsart': amsart,
         'acmart': acmart,
         'lipics': lipics,
+        'siamart': siamart,
         }
 
 def cls_module(cls):
