@@ -45,17 +45,18 @@ def render_acks(acks):
     return render_command('acknowledgements', acks)
 
 
-def header(data, **kwargs):
-    cls_opts = list(kwargs['classoptions']) if 'classoptions' in kwargs else []
+def header(data, cname=None, classoptions=[], **kwargs):
+    if cname is None:
+        cname = 'lipics-v2021'
 
     if 'anonymous' in kwargs and kwargs['anonymous']:
-        cls_opts.append('anonymous')
+        classoptions.append('anonymous')
 
     headers = [
         render_command(
             'documentclass',
-            'lipics-v2021',
-            ','.join(cls_opts)),
+            cname,
+            ','.join(classoptions)),
         render_encs]
 
     if 'include' in kwargs:

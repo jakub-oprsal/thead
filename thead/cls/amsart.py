@@ -1,7 +1,7 @@
 from .common import *
 
 
-render_include = r'''\usepackage{tikz}
+HEADER = r'''\usepackage{tikz}
 \definecolor{purple}{cmyk}{0.55,1,0,0.15}
 \definecolor{darkblue}{cmyk}{1,0.58,0,0.21}
 \usepackage[colorlinks,
@@ -51,17 +51,25 @@ def render_acks(acks):
     return f'\subsection*{{Acknowledgements}}\n\n{acks.strip()}\n'
 
 
-def header(data, **kwargs):
-    cls_opts = list(kwargs['classoptions']) if 'classoptions' in kwargs else []
-    cls_opts.append('a4paper')
+def header(data, cname=None, classoptions=[], **kwargs):
+    if cname is None:
+        cname = 'amsart'
+
+    if 'noheader' in classoptions:
+        classoptions.remove('noheader')
+        include_header = False
+    else:
+        include_header = True
 
     headers = [
         render_command(
             'documentclass',
-            'amsart',
-            ','.join(cls_opts)),
-        render_encs,
-        render_include]
+            cname,
+            ','.join(classoptions)),
+        render_encs]
+
+    if include_header:
+        headers.append(HEADER)
 
     if 'include' in kwargs:
         headers += [include(file) for file in kwargs['include']]

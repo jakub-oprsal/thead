@@ -31,16 +31,18 @@ def render_funding(funds):
     return render_command('thanks', funding_note)
 
 
-def header(data, **kwargs):
-    cls_opts = kwargs['classoptions'] if 'classoptions' in kwargs else []
+def header(data, cname=None, classoptions=[], **kwargs):
+    if cname is None:
+        cname = 'acmart'
+
     if 'anonymous' in kwargs and kwargs['anonymous']:
-        cls_opts.append('anonymous')
+        classoptions.append('anonymous')
 
     headers = [
         render_command(
             'documentclass',
-            'acmart',
-            ','.join(cls_opts)),
+            cname,
+            ','.join(classoptions)),
         render_encs,
         header_include]
 

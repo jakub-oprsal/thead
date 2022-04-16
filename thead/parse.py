@@ -23,6 +23,7 @@ def parse(meta, recipe, args):
             authors = authors_list(meta['authors'], short = True))
     yield clsmodule.header(
             meta,
+            cname=args.cname,
             anonymous=args.anonymous,
             classoptions=args.opts,
             include=recipe.header)

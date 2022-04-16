@@ -1,5 +1,6 @@
 import sys, os, codecs, yaml
 import re
+from itertools import chain
 from argparse import ArgumentParser
 from .parse import parse
 
@@ -14,6 +15,12 @@ def get_args(args):
             required = True)
 
     parser.add_argument(
+            "--cname",
+            help = "Use class name CNAME instead of the default for the "
+                   "class.",
+            default = None)
+
+    parser.add_argument(
             "-o",
             "--out",
             metavar = "OUTFILE",
@@ -26,15 +33,13 @@ def get_args(args):
 
     parser.add_argument(
             "--opts",
-            metavar = "OPT",
-            nargs = "+",
-            help = "Options specific for a class",
-            action = "extend",
+            help = "Options specific for a class, comma separated",
+            action = "append",
             default = [])
 
     parser.add_argument(
             "--no-include",
-            help = "Include '\input{...}' instead of including content.",
+            help = "Use '\input{...}' instead of including files.",
             dest = "include",
             action = "store_false")
 
@@ -43,12 +48,13 @@ def get_args(args):
             help = "Set to anonymous mode for doubly blind reviews",
             action = "store_true")
 
-    parsed_args = parser.parse_args(args)
-    if parsed_args.out is None:
-            m = re.match(r'(.*)\.[a-zA-Z]*', parsed_args.filename)
-            parsed_args.out = f'{m.group(1)}.tex' if m else f'{parsed_args.filename}.tex'
+    pargs = parser.parse_args(args)
+    if pargs.out is None:
+        m = re.match(r'(.*)\.[a-zA-Z]*', pargs.filename)
+        pargs.out = f'{m.group(1)}.tex' if m else f'{pargs.filename}.tex'
+    pargs.opts = list(chain(*(opt.split(',') for opt in pargs.opts)))
 
-    return parsed_args
+    return pargs
 
 
 class Recipe:
