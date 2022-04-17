@@ -1,3 +1,8 @@
+'''
+Contains modules for supported LaTeX classes
+
+The function cls_module(cls) returns the corresponding module for a class.
+'''
 from . import amsart, acmart, lipics, siamart
 
 CLS_MODULES = {

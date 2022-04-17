@@ -1,4 +1,4 @@
-decode_table = {
+dictionary = {
     'À': r'\`A', 'Á': r"\'A", 'Â': r'\^A', 'Ã': r'\~A', 'Ä': r'\"A',
     'Å': r'\r{A}', 'Æ': r'\AE', 'Ç': r'\c{C}', 'È': r'\`E', 'É': r"\'E",
     'Ê': r'\^E', 'Ë': r'\"E', 'Ì': r'\`I', 'Í': r"\'I", 'Î': r'\^I',
@@ -36,11 +36,5 @@ decode_table = {
     'Ż': r'\.Z', 'ż': r'\.z', 'Ž': r'\v{Z}', 'ž': r'\v{z}'}
 
 
-def char2tex(char):
-    if char in decode_table:
-        return f'{{{decode_table[char]}}}'
-    else:
-        return char
-
 def u2tex(string):
-   return ''.join(char2tex(char) for char in string)
+   return ''.join(dictionary.get(char, char) for char in string)

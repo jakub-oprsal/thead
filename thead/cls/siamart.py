@@ -35,7 +35,8 @@ def render_author(author):
     if 'affiliation' in author:
         thanks.append(render_address(author['affiliation']))
     if 'email' in author:
-        thanks.append('({})'.format(render_command('email', author['email'])))
+        thanks.append('({})'.format(
+            render_command('email', author['email']).strip()))
     address = render_command('thanks', '\n'.join(thanks)) if thanks else ''
     return u2tex(author['name']) + '%\n' + address
 
@@ -105,7 +106,7 @@ def footer(data, bib):
     if 'acknowledgements' in data:
         footers.append(render_acks(data['acknowledgements']))
     if bib:
-        footers.append(render_bib('alphaurl', bib))
+        footers.append(render_bib('siamplain', bib))
     footers.append(end_document)
 
     return '\n'.join(footers)

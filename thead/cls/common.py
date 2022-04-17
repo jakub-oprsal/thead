@@ -30,7 +30,7 @@ render_encs = r'''\usepackage[utf8]{inputenc}
 def render_ccs_tex(ccs):
     return ''.join(render_command('ccsdesc',
                 concept['desc'],
-                concept['significance'] if 'significance' in concept else None)
+                concept.get('significance'))
             for concept in ccs['concepts'])
 
 CCS_CONCEPT = '''  <concept>

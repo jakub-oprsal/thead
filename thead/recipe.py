@@ -8,8 +8,10 @@ class Recipe:
         self.appendix = list(appendix)
         self.bib = list(bib)
 
-    def discover(self, path='.'):
+    @classmethod
+    def discover(cls, path='.'):
         ''' Discovers files with the content of the document. '''
+        header, content, appendix, bib = ([] for _ in range(4))
         for direntry in os.scandir(path):
             try:
                 fmatch = re.match(r'(.+)\.(tex|bib)', direntry.name)
@@ -20,42 +22,35 @@ class Recipe:
 
             name, ftype = fmatch.group(1), fmatch.group(2)
             if ftype == 'bib':
-                self.bib.append(name)
+                bib.append(name)
             elif ftype == 'tex':
                 if name == 'macro':
-                    self.header.append('macro')
+                    header.append('macro')
                 elif re.match(r'(content|[0-9]+[_-])', name):
-                    self.content.append(name)
+                    content.append(name)
                 elif re.match(r'(appendix|[A-Z]+[_-])', name):
-                    self.appendix.append(name)
+                    appendix.append(name)
 
-        if 'content' in self.content:
-            self.content = ['content']
+        if 'content' in content:
+            content = ['content']
         else:
-            self.content.sort()
-        if 'appendix' in self.appendix:
-            self.appendix = ['appendix']
+            content.sort()
+        if 'appendix' in appendix:
+            appendix = ['appendix']
         else:
-            self.appendix.sort()
+            appendix.sort()
 
-    def read(self, yamlfile):
+        return cls(header, content, appendix, bib)
+
+    @classmethod
+    def read(cls, yamlfile):
         ''' Reads a recipe from a yaml file. '''
-
         with open(yamlfile, 'r') as f:
             data = yaml.safe_load(f)
-
-        def rm_ext(fname):
-            m = re.match(r'(.*)\.bib')
-            return m.group(1) if m else fname
-
-        if 'header' in data:
-            self.header = data['header']
-        if 'content' in data:
-            self.content = data['content']
-        if 'appendix' in data:
-            self.appendix = data['appendix']
-        if 'bib' in data:
-            self.bib = list(map(rm_ext, data['bib']))
+        return cls(data.get('header', []),
+                   data.get('content', []),
+                   data.get('appendix', []),
+                   data.get('bib', []))
 
     def __add__(self, other):
         if type(self) != type(other):
@@ -64,3 +59,5 @@ class Recipe:
         self.content += other.content
         self.appendix += other.appendix
         self.bib += other.bib
+
+        return self

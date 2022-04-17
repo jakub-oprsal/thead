@@ -11,13 +11,14 @@ def get_args(args):
     parser.add_argument(
             "-c",
             "--cls",
-            help = "Specify the output class of the document",
+            help = "Specify the target class of the document "
+                   "(more precisely the class driver)",
             required = True)
 
     parser.add_argument(
             "--cname",
             help = "Use class name CNAME instead of the default for the "
-                   "class.",
+                   "class driver",
             default = None)
 
     parser.add_argument(
@@ -29,7 +30,7 @@ def get_args(args):
 
     parser.add_argument(
             "filename",
-            help = "The metadata yaml file")
+            help = "The input metadata yaml file")
 
     parser.add_argument(
             "--opts",
@@ -38,7 +39,8 @@ def get_args(args):
             default = [])
 
     parser.add_argument(
-            "--header-include",
+            "--header-file",
+            metavar = "macro.tex",
             dest = "header",
             help = "TeX file(s) to be included in the header",
             action = "append",
@@ -46,13 +48,13 @@ def get_args(args):
 
     parser.add_argument(
             "--content",
-            help = "Content of the document",
+            help = "TeX file(s) with the content of the document",
             action = "append",
             default = [])
 
     parser.add_argument(
             "--appendix",
-            help = "Appendix",
+            help = "TeX file(s) with the appendix",
             action = "append",
             default = [])
 
@@ -61,6 +63,11 @@ def get_args(args):
             help = "Additional bibliography source",
             action = "append",
             default = [])
+
+    parser.add_argument(
+            "--recipe",
+            help = "Recipe in a yaml file",
+            default = None)
 
     parser.add_argument(
             "--no-include",
@@ -88,8 +95,12 @@ if __name__ == '__main__':
     with open(args.filename, 'r') as f:
         data = yaml.safe_load(f)
 
-    recipe = Recipe()
-    recipe.discover()
+    if args.recipe is not None:
+        recipe = Recipe.read(args.recipe)
+    else:
+        recipe = Recipe(args.header, args.content, args.appendix, args.bib)
+        if not recipe.content:
+            recipe = Recipe.discover() + recipe
 
     with codecs.open(args.out, mode='w', encoding='utf-8') as ofile:
         for chunk in parse(data, recipe, args):
