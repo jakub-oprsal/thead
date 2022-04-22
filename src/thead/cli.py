@@ -6,7 +6,7 @@ from .recipe import Recipe
 
 
 def get_args(args):
-    parser = ArgumentParser(prog="python3 -m thead")
+    parser = ArgumentParser(prog="thead")
 
     parser.add_argument(
             "-c",
@@ -89,7 +89,7 @@ def get_args(args):
     return pargs
 
 
-if __name__ == '__main__':
+def main():
     args = get_args(sys.argv[1:])
 
     with open(args.filename, 'r') as f:

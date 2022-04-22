@@ -43,7 +43,6 @@ def header(data, cname=None, classoptions=[], **kwargs):
             'documentclass',
             cname,
             ','.join(classoptions)),
-        render_encs,
         header_include]
 
     if 'include' in kwargs:

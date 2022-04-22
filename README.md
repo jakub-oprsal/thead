@@ -23,10 +23,9 @@ Again, to reiterate, the purpose of this package is **separate metadata from con
 
 ## Installation and usage
 
-This is a python package that can be either install through pip git interface, i.e., by running
+This is a python package that can be installed through pip git interface, i.e., by running
 ```
 python3 -m pip install git+https://github.com/jakub-oprsal/thead
 ```
-or by downloading and installing by running `python3 -m setup build` and `python3 -m setup install`.
 
-Everything is work in progress. I will soon provide an example metadata file. To get help on invocation, run `python3 -m thead -h`.
+Everything is work in progress. I will soon provide an example metadata file. To get help on invocation, run `thead -h`.
