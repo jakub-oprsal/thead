@@ -2,53 +2,53 @@
 Basic functions for building (more) complicated class compilers.
 '''
 import re, codecs
+from textwrap import indent
 
 
-def indent(string):
-    return "\n".join(map(lambda line: "  " + line, string.split("\n")))
+def indent_two(lines):
+    return indent(lines, ' '*2)
 
-
-def render_env(envname, content):
-    return (f'\\begin{{{envname}}}\n'
-            f'{indent(content)}\n'
-            f'\\end{{{envname}}}\n')
 
 def render_command(command, a, b=''):
     atr = f'[{b}]' if b != '' else ''
     return f'\\{command}{atr}{{{a}}}\n'
 
 
+def render_env(envname, content):
+    return render_command('begin', envname) + \
+           f'{indent_two(content)}\n' + \
+           render_command('end', envname)
+
 maketitle = '\\maketitle\n'
-begin_document = '\\begin{document}\n'
-end_document = '\\end{document}\n'
-render_encs = r'''\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-'''
+begin_document = render_command('begin', 'document')
+end_document = render_command('end', 'document')
+render_encs = render_command('usepackage', 'inputenc', 'utf8') + \
+              render_command('usepackage', 'fontenc', 'T1')
 
 ## CCS CLASIFICATION
 
-def render_ccs_tex(ccs):
+def render_ccs_tex(concepts):
     return ''.join(render_command('ccsdesc',
                 concept['desc'],
                 concept.get('significance'))
-            for concept in ccs['concepts'])
+            for concept in concepts)
 
-CCS_CONCEPT = '''  <concept>
-    <concept_id>{_id}</concept_id>
-    <concept_desc>{_desc}</concept_desc>
-    <concept_significance>{_significance}</concept_significance>
-  </concept>'''
+def xmltag(tag, text, inline=False):
+    return f'<{tag}>{text}</{tag}>\n' if inline \
+           else f'<{tag}>\n{indent_two(text)}</{tag}>\n'
 
-def render_ccs_xml(ccs):
-    concepts = '\n'.join(CCS_CONCEPT.format(
-            _id = concept['id'],
-            _desc = concept['desc'],
-            _significance = concept['significance'])
-        for concept in ccs['concepts'])
-    return render_env('CCSXML', f'<ccs2012>\n{concepts}\n</ccs2012>')
+def concept_xml(concept):
+    content = ''.join(xmltag(f'concept_{key}', value, inline=True)
+                      for key, value in concept.items())
+    return xmltag('concept', content)
+
+def render_ccs_xml(concepts):
+    return xmltag('ccs2012', ''.join(map(concept_xml, concepts)))
 
 def render_ccs(ccs):
-    return render_ccs_xml(ccs) + render_ccs_tex(ccs)
+    concepts = ccs['concepts']
+    return render_env('CCSXML', render_ccs_xml(concepts).strip()) + \
+           render_ccs_tex(concepts)
 
 
 ## ABSTRACT AND KEYWORDS

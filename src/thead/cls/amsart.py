@@ -25,7 +25,7 @@ HEADER = r'''\usepackage{tikz}
 
 def render_pdfmeta(authors, title):
     author_list = authors_list(authors, short=True)
-    return f'''\hypersetup{{%
+    return f'''\\hypersetup{{%
     pdftitle  = {{{title}}},
     pdfauthor = {{{author_list}}}}}\n'''
 
@@ -48,7 +48,7 @@ def render_funding(funds):
 
 
 def render_acks(acks):
-    return f'\subsection*{{Acknowledgements}}\n\n{acks.strip()}\n'
+    return f'\\subsection*{{Acknowledgements}}\n\n{acks.strip()}\n'
 
 
 def header(data, cname=None, classoptions=[], **kwargs):
@@ -97,7 +97,7 @@ def header(data, cname=None, classoptions=[], **kwargs):
 
 def footer(data, bib):
     footers = ['']
-    if 'acknowledgements' in data:
+    if 'acknowledgements' in data: # and not anonymous:
         footers.append(render_acks(data['acknowledgements']))
     if bib:
         footers.append(render_bib('alphaurl', bib))

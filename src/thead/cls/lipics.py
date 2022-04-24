@@ -10,15 +10,15 @@ def render_title(title, shorttitle = None):
 
 def render_author(author):
     name = author['name']
-    email = author['email'] if 'email' in author else ''
-    orcid_url = 'https://orcid.org/{}'.format(author['orcid']) if 'orcid' in author else ''
-    funding = author['funding'] if 'funding' in author else ''
-
     if 'affiliation' in author:
         institution = ', '.join(value for _, value in
                 author['affiliation'].items())
     else:
         institution = ''
+    email = author.get('email', '')
+    orcid_url = 'https://orcid.org/{}'.format(author['orcid']) \
+                if 'orcid' in author else ''
+    funding = author.get('funding', '')
 
     return f'''\\author{{{name}}}
     {{{institution}}}
