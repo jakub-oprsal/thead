@@ -1,0 +1,28 @@
+title: On Computable Numbers, with an Application to the Entscheidungsproblem
+authors:
+  - name: Alan M. Turing
+    affiliation:
+      department: The Graduate College
+      institution: Princeton University
+      city: New Jersey
+      country: U.S.A.
+   
+abstract: |
+  The ``computable'' numbers may be described briefly as the real numbers whose expressions as a decimal are calculable by finite means. Although the subject of this paper is ostensibly the computable numbers, it is almost equally easy to define and investigate computable functions of an integral variable or a real or computable variable, computable predicates, and so forth. The fundamental problems involved are, however, the same in each case, and I have chosen the computable numbers for explicit treatment as involving the least cumbrous technique. I hope shortly to give an account of the relations of the computable numbers, functions, and so forth to one another. This will include a development of the theory of functions of a real variable expressed in terms of computable numbers. According to my definition, a number is computable if its decimal can be written down by a machine.
+
+  In \S\S 9, 10 I give some arguments with the intention of showing that the computable numbers include all numbers which could naturally be regarded as computable. In particular, I show that certain large classes of numbers are computable. They include, for instance, the real parts of all algebraic numbers, the real parts of the zeros of the Bessel functions, the numbers $\pi$, $e$, etc. The computable numbers do not, however, include all definable numbers, and an example is given of a definable number which is not computable.
+
+  Although the class of computable numbers is so great, and in many ways similar to the class of real numbers, it is nevertheless enumerable. In \S 8 I examine certain arguments which would seem to prove the contrary. By the correct application of one of these arguments, conclusions are reached which are superficially similar to those of Gödel\dag. These results have valuable applications. In particular, it is shown (\S 11) that the Hilbertian Entscheidungsproblem can have no solution.
+
+  In a recent paper Alonzo Church\dag has introduced an idea of ``effective calculability'', which is equivalent to my ``computability'', but is very differently defined. Church also reaches similar conclusions about the Entscheidungsproblem.\ddag The proof of equivalence between ``computability'' and ``effective calculability'' is outlined in an appendix to the present paper.
+
+keywords:
+  - Entschedidungsproblem
+  - computable numbers
+  
+ccs2012:
+  concepts:
+    - id: 10003752.10003753.10010622
+      desc: Theory of computation~Abstract machines
+      significance: 500
+
