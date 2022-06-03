@@ -34,9 +34,9 @@ def parse(meta, recipe, args):
     for filename in recipe.content:
         yield _include(filename, '\n')
     if recipe.appendix:
-        body += '\n\\appendix\n\n'
+        yield '\n\\appendix\n\n'
         for filename in recipe.appendix:
-            yield include(filename, '\n')
+            yield _include(filename, '\n')
 
     ## FOOTER
     yield clsmodule.footer(meta, recipe.bib)
