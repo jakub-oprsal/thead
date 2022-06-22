@@ -1,80 +1,82 @@
-from .common import *
+from .default import Article
+from .tex import indent, render_command, render_env, include
 
 
-header_include = r'''\citestyle{acmauthoryear}
+HEADER_INCLUDE = r'''\citestyle{acmauthoryear}
 \setcitestyle{nosort}
-
 \AtEndPreamble{%
     \theoremstyle{acmdefinition}
     \newtheorem{claim}{Claim}[theorem]}
 '''
 
 
-def render_author(author):
-    out = render_command('author', author['name'])
+class Acmart(Article):
+    provides = ['acmart']
 
-    if 'email' in author:
-        out += render_command('email', author['email'])
+    def __init__(self, meta, **kwargs):
+        super(Acmart, self).__init__(meta, **kwargs)
 
-    if 'affiliation' in author:
-        out += "\\affiliation{%\n"
-        for key, value in author['affiliation'].items():
-            out += "  " + render_command(key, value)
-        out += "}\n"
-    return out
+        if self.cname is None:
+            self.cname = 'acmart'
+        self.bibstyle = 'ACM-Reference-Format'
 
-
-def render_funding(funds):
-    funding_note = "\n".join(grant['note']
-            for grant in funds
-            if 'note' in grant)
-    return render_command('thanks', funding_note)
+        if self.anonymous and 'anonymous' not in self.opts:
+            self.opts.append('anonymous')
 
 
-def header(data, cname=None, classoptions=[], **kwargs):
-    if cname is None:
-        cname = 'acmart'
+        self.headers = [
+                self.render_comment,
+                self.render_documentclass,
+                self.includes,
+                self.render_title,
+                self.render_authors,
+                self.render_ccs2012,
+                self.render_keywords,
+                self.render_abstract,
+                self.render_funding,
+                self.begin_document,
+                self.maketitle,
+                ]
+        
+        self.footers.insert(0, self.render_acknowledgements)
+        self.biblopgraphystyle = 'ACM-Reference-Format'
 
-    if 'anonymous' in kwargs and kwargs['anonymous']:
-        classoptions.append('anonymous')
+    def check(self):
+        if self.title is None or self.authors is None:
+            raise KeyError
+        else:
+            return True
 
-    headers = [
-        render_command(
-            'documentclass',
-            cname,
-            ','.join(classoptions)),
-        header_include]
+    def render_author(self, author):
+        out = render_command('author', author['name'])
 
-    if 'include' in kwargs:
-        headers += [include(file) for file in kwargs['include']]
+        if 'email' in author:
+            out += render_command('email', author['email'])
 
-    headers += [
-        render_command('title', data['title']),
-        '\n'.join(map(render_author, data['authors']))]
+        if 'affiliation' in author:
+            out += "\\affiliation{%\n"
+            out += indent(''.join(
+                    render_command(key, value)
+                    for key, value in author['affiliation'].items()))
+            out += "}\n"
+        return out
 
-    if 'ccs2012' in data:
-        headers.append(render_ccs(data['ccs2012']))
+    def render_funding(self):
+        try:
+            funding_note = '\n'.join(grant['note']
+                    for grant in self.funding
+                    if 'note' in grant)
+            return render_command('thanks', funding_note)
+        except AttributeError:
+            return None
 
-    if 'keywords' in data:
-        headers.append(render_keywords(data['keywords']))
+    def render_acknowledgements(self):
+        try:
+            return render_env('acks', self.acknowledgements)
+        except AttributeError:
+            return None
 
-    if 'abstract' in data:
-        headers.append(render_abstract(data['abstract'])),
-
-    if 'funding' in data:
-        render_funding(data['funding'])
-
-    headers += [begin_document, maketitle, '']
-
-    return '\n'.join(headers)
-
-
-def footer(data, bib):
-    footers = ['']
-    if 'acknowledgements' in data:
-        footers.append(render_env('acks', data['acknowledgements']))
-    if bib:
-        footers.append(render_bib('ACM-Reference-Format', bib))
-    footers.append(end_document)
-
-    return '\n'.join(footers)
+    def includes(self):
+        out = [HEADER_INCLUDE]
+        out += (include(file) for file in self.include)
+        return ''.join(out)

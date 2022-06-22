@@ -1,18 +1,12 @@
 '''
 Contains modules for supported LaTeX classes
-
-The function cls_module(cls) returns the corresponding module for a class.
 '''
-from . import amsart, acmart, lipics, siamart
+from .acmart import Acmart
 
-CLS_MODULES = {
-        'amsart': amsart,
-        'acmart': acmart,
-        'lipics': lipics,
-        'siamart': siamart,
-        }
 
-def cls_module(cls):
-    if cls not in CLS_MODULES:
-        raise Exception(f"Unrecognised class '{cls}'!")
-    return CLS_MODULES[cls]
+def IdentifyClass(cls):
+    for Class in [Acmart]:
+        if cls in Class.provides:
+            return Class
+    raise Exception(f"Unrecognised class '{cls}'!")
+
