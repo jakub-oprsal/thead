@@ -1,6 +1,6 @@
+from .default import Article
+from .tex import indent, render_command, render_env, include
 from ..u2tex import u2tex
-from .common import *
-from .amsart import render_acks
 
 
 HEADER = r'''\usepackage{amssymb,amsmath}
@@ -10,103 +10,83 @@ HEADER = r'''\usepackage{amssymb,amsmath}
 \newsiamremark{remark}{Remark}
 '''
 
+class SIAMart(Article):
+    provides = ['siamart']
 
-def render_keywords(keywords):
-    return render_env('keywords', ", ".join(keywords))
+    def __init__(self, meta, **kwargs):
+        super(SIAMart, self).__init__(meta, **kwargs)
 
+        if self.cname is None:
+            self.cname = 'siamart190516'
 
-def render_address(addr):
-    out = []
-    if 'department' in addr:
-        out.append(addr['department'])
-    if 'institution' in addr:
-        out.append(addr['institution'])
-        if 'city' in addr and addr['city'] not in addr['institution']:
+        self.headers = [
+                self.render_comment,
+                self.render_documentclass,
+                self.render_encs,
+                self.includes,
+                self.render_title,
+                self.render_authors,
+                self.begin_document,
+                self.maketitle,
+                self.render_abstract,
+                self.render_keywords,
+                ]
+
+        if 'noheader' in self.opts:
+            self.opts.remove('noheader')
+        else:
+            self.headers.insert(3, self.extra_header)
+
+        self.footers.insert(0, self.render_acknowledgements)
+        self.bibstyle = 'siamplain'
+
+    def render_title(self):
+        title = u2tex(self.title)
+        if hasattr(self, 'funding'):
+            title += '%\n' + self.render_funding()
+        return render_command('title', title)
+
+    def render_keywords(self):
+        try:
+            return render_env('keywords', ", ".join(self.keywords))
+        except AttributeError:
+            return None
+
+    def render_address(self, addr):
+        out = []
+        if 'department' in addr:
+            out.append(addr['department'])
+        if 'institution' in addr:
+            out.append(addr['institution'])
+            if 'city' in addr and addr['city'] not in addr['institution']:
+                out.append(addr['city'])
+        elif 'city' in addr:
             out.append(addr['city'])
-    elif 'city' in addr:
-        out.append(addr['city'])
-    if 'country' in addr:
-        out.append(addr['country'])
-    return ', '.join(out)
+        if 'country' in addr:
+            out.append(addr['country'])
+        return ', '.join(out)
 
+    def render_author(self, author):
+        thanks = []
+        if 'affiliation' in author:
+            thanks.append(self.render_address(author['affiliation']))
+        if 'email' in author:
+            thanks.append('({})'.format(
+                render_command('email', author['email']).strip()))
+        address = render_command('thanks', '\n'.join(thanks)) if thanks else ''
+        return u2tex(author['name']) + '%\n' + address
 
-def render_author(author):
-    thanks = []
-    if 'affiliation' in author:
-        thanks.append(render_address(author['affiliation']))
-    if 'email' in author:
-        thanks.append('({})'.format(
-            render_command('email', author['email']).strip()))
-    address = render_command('thanks', '\n'.join(thanks)) if thanks else ''
-    return u2tex(author['name']) + '%\n' + address
+    def render_authors(self):
+        return render_command('author',
+                              '\\and\n'.join(self.render_author(author)
+                                             for author in self.authors))
 
+    def extra_header(self):
+        return HEADER
 
-def render_authors(authors):
-    return render_command(
-            'author',
-            '\\and\n'.join(render_author(author) for author in authors))
-
-
-def render_funding(funds):
-    funding_note = '\n'.join(grant['note']
-            for grant in funds
-            if 'note' in grant)
-    return render_command('thanks', funding_note)
-
-
-def header(data, cname=None, classoptions=[], **kwargs):
-    if cname is None:
-        cname = 'siamart190516'
-
-    if 'noheader' in classoptions:
-        classoptions.remove('noheader')
-        include_header = False
-    else:
-        include_header = True
-
-    headers = [
-        render_command(
-            'documentclass',
-            cname,
-            ','.join(classoptions)),
-        render_encs]
-
-    if include_header:
-        headers.append(HEADER)
-
-    if 'include' in kwargs:
-        headers += [include(file) for file in kwargs['include']]
-
-    if 'funding' in data:
-        title = render_command('title',
-            u2tex(data['title']) + '%\n' + render_funding(data['funding']))
-    else:
-        title = render_command('title', data['title'])
-
-    headers += [
-            title,
-            render_authors(data['authors']),
-            begin_document,
-            maketitle,
-            ]
-
-    if 'abstract' in data:
-        headers.append(render_abstract(data['abstract']))
-
-    if 'keywords' in data:
-        headers.append(render_keywords(data['keywords']))
-
-    headers.append('')
-
-    return '\n'.join(headers)
-
-
-def footer(data, bib):
-    footers = ['']
-    if 'acknowledgements' in data:
-        footers.append(render_acks(data['acknowledgements']))
-    if bib:
-        footers.append(render_bib('siamplain', bib))
-    footers.append(end_document)
-
-    return '\n'.join(footers)
+    def render_acknowledgements(self):
+        try:
+            return r'\subsection*{Acknowledgements}' + '\n\n' + \
+                   self.acknowledgements.strip() + '\n'
+        except AttributeError:
+            return None

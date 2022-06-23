@@ -1,99 +1,81 @@
-from .common import *
+from .default import Article
+from .tex import indent, render_command, render_env, include
 
 
-def render_title(title, shorttitle = None):
-    out = render_command('title', title)
-    if shorttitle is not None:
-        out += render_command('titlerunning', shorttitle)
-    return out
+class LIPIcs(Article):
+    provides = ['lipics', 'lipics-v2021']
 
+    def __init__(self, meta, **kwargs):
+        super(LIPIcs, self).__init__(meta, **kwargs)
 
-def render_author(author):
-    name = author['name']
-    if 'affiliation' in author:
-        institution = ', '.join(value for _, value in
-                author['affiliation'].items())
-    else:
-        institution = ''
-    email = author.get('email', '')
-    orcid_url = 'https://orcid.org/{}'.format(author['orcid']) \
-                if 'orcid' in author else ''
-    funding = author.get('funding', '')
+        if self.cname is None:
+            self.cname = 'lipics-v2021'
 
-    return f'''\\author{{{name}}}
-    {{{institution}}}
-    {{{email}}}
-    {{{orcid_url}}}
-    {{{funding}}}\n'''
+        if self.anonymous and 'anonymous' not in self.opts:
+            self.opts.append('anonymous')
 
+        # abstract and keywords are mandatory
+        # raise AttributeError if missing
+        _ = self.abstract, self.keywords
 
-def render_authors_running(authors):
-    return render_command('authorrunning', authors_list(authors, short=True))
+        #\hideLIPIcs  %to remove references to LIPIcs series (logo, DOI, ...), e.g. when preparing a pre-final version to be uploaded to arXiv or another public repository
+        #%\nolinenumbers %uncomment to disable line numbering
 
+        self.headers = [
+                self.render_comment,
+                self.render_documentclass,
+                self.includes,
+                self.render_title,
+                self.render_shorttitle,
+                self.render_authors,
+                self.render_authorsrunning,
+                self.render_copyright,
+                self.render_funding,
+                self.render_keywords,
+                self.render_ccs2012,
+                self.render_acknowledgements,
+                self.begin_document,
+                self.maketitle,
+                self.render_abstract,
+                ]
 
-def render_copyright(authors):
-    cc = authors_list(authors)
-    return render_command('Copyright', cc)
+        self.bibstyle = 'plainurl'
 
+    def render_title(self):
+        return render_command('title', self.title)
 
-def render_funding(funds):
-    note = "\n".join(grant['note'] for grant in funds if 'note' in grant)
-    return render_command('funding', note)
+    def render_shorttitle(self):
+        try:
+            return render_command('titlerunning', self.shorttitle)
+        except AttributeError:
+            return None
 
+    def render_author(self, author):
+        name = author['name']
+        if 'affiliation' in author:
+            institution = ', '.join(value for _, value in
+                    author['affiliation'].items())
+        else:
+            institution = ''
+        email = author.get('email', '')
+        orcid_url = 'https://orcid.org/{}'.format(author['orcid']) \
+                    if 'orcid' in author else ''
+        funding = author.get('funding', '')
 
-def render_acks(acks):
-    return render_command('acknowledgements', acks)
+        return f'''\\author{{{name}}}
+        {{{institution}}}
+        {{{email}}}
+        {{{orcid_url}}}
+        {{{funding}}}\n'''
 
+    def render_authorsrunning(self):
+        return render_command('authorrunning', self.authors_list(short=True))
 
-def header(data, cname=None, classoptions=[], **kwargs):
-    if cname is None:
-        cname = 'lipics-v2021'
+    def render_copyright(self):
+        return render_command('Copyright', self.authors_list())
 
-    if 'anonymous' in kwargs and kwargs['anonymous']:
-        classoptions.append('anonymous')
+    def render_funding(self):
+        return super().render_funding(command='funding')
 
-    headers = [
-        render_command(
-            'documentclass',
-            cname,
-            ','.join(classoptions)),
-        render_encs]
-
-    if 'include' in kwargs:
-        headers += [include(file) for file in kwargs['include']]
-
-    if 'shorttitle' in data:
-        headers.append(render_title(data['title'], data['shorttitle']))
-    else:
-        headers.append(render_title(data['title']))
-
-    headers += ['\n'.join(map(render_author, data['authors'])),
-            render_authors_running(data['authors']),
-            render_copyright(data['authors'])]
-
-    if 'funding' in data:
-        headers.append(render_funding(data['funding']))
-
-    headers.append(render_keywords(data['keywords']))
-
-    if 'ccs2012' in data:
-        headers.append(render_ccs(data['ccs2012']))
-
-    if 'acknowledgements' in data:
-        headers.append(render_acks(data['acknowledgements']))
-
-    headers += [begin_document,
-            maketitle,
-            render_abstract(data['abstract']),
-            '']
-
-    return '\n'.join(headers)
-
-
-def footer(data, bib):
-    footers = ['']
-    if bib:
-        footers.append(render_bib('plainurl', bib))
-    footers.append(end_document)
-
-    return '\n'.join(footers)
+    def render_acknowledgements(self):
+        return render_command('acknowledgements', self.acknowledgements)

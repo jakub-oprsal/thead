@@ -70,10 +70,10 @@ def get_args(args):
             default = None)
 
     parser.add_argument(
-            "--no-include",
-            help = "Use '\input{...}' instead of including files.",
+            "--include",
+            help = "Include the content of files instead of \\input.",
             dest = "include",
-            action = "store_false")
+            action = "store_true")
 
     parser.add_argument(
             "--anonymous",

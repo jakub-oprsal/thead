@@ -2,7 +2,7 @@ from .default import Article
 from .tex import indent, render_command, render_env, include
 
 
-HEADER_INCLUDE = r'''\citestyle{acmauthoryear}
+EXTRA_HEADER = r'''\citestyle{acmauthoryear}
 \setcitestyle{nosort}
 \AtEndPreamble{%
     \theoremstyle{acmdefinition}
@@ -10,23 +10,22 @@ HEADER_INCLUDE = r'''\citestyle{acmauthoryear}
 '''
 
 
-class Acmart(Article):
+class ACMart(Article):
     provides = ['acmart']
 
     def __init__(self, meta, **kwargs):
-        super(Acmart, self).__init__(meta, **kwargs)
+        super(ACMart, self).__init__(meta, **kwargs)
 
         if self.cname is None:
             self.cname = 'acmart'
-        self.bibstyle = 'ACM-Reference-Format'
 
         if self.anonymous and 'anonymous' not in self.opts:
             self.opts.append('anonymous')
 
-
         self.headers = [
                 self.render_comment,
                 self.render_documentclass,
+                self.extra_header,
                 self.includes,
                 self.render_title,
                 self.render_authors,
@@ -39,13 +38,10 @@ class Acmart(Article):
                 ]
         
         self.footers.insert(0, self.render_acknowledgements)
-        self.biblopgraphystyle = 'ACM-Reference-Format'
+        self.bibstyle = 'ACM-Reference-Format'
 
-    def check(self):
-        if self.title is None or self.authors is None:
-            raise KeyError
-        else:
-            return True
+    def extra_header(self):
+        return EXTRA_HEADER
 
     def render_author(self, author):
         out = render_command('author', author['name'])
@@ -61,22 +57,8 @@ class Acmart(Article):
             out += "}\n"
         return out
 
-    def render_funding(self):
-        try:
-            funding_note = '\n'.join(grant['note']
-                    for grant in self.funding
-                    if 'note' in grant)
-            return render_command('thanks', funding_note)
-        except AttributeError:
-            return None
-
     def render_acknowledgements(self):
         try:
             return render_env('acks', self.acknowledgements)
         except AttributeError:
             return None
-
-    def includes(self):
-        out = [HEADER_INCLUDE]
-        out += (include(file) for file in self.include)
-        return ''.join(out)

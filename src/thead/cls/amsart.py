@@ -1,4 +1,5 @@
-from .common import *
+from .default import Article
+from .tex import indent, render_command, render_env, include
 
 
 HEADER = r'''\usepackage{tikz}
@@ -23,84 +24,61 @@ HEADER = r'''\usepackage{tikz}
 '''
 
 
-def render_pdfmeta(authors, title):
-    author_list = authors_list(authors, short=True)
-    return f'''\\hypersetup{{%
-    pdftitle  = {{{title}}},
-    pdfauthor = {{{author_list}}}}}\n'''
+class AMSart(Article):
+    provides = ['amsart']
 
+    def __init__(self, meta, **kwargs):
+        super(AMSart, self).__init__(meta, **kwargs)
 
-def render_author(author):
-    out = render_command('author', author['name'])
-    if 'affiliation' in author:
-        out += render_command('address',
-            ", ".join(value for _, value in author['affiliation'].items()))
-    if 'email' in author:
-        out += render_command('email', author['email'])
-    return out
+        if self.cname is None:
+            self.cname = 'amsart'
 
+        self.headers = [
+                self.render_comment,
+                self.render_documentclass,
+                self.includes,
+                self.render_pdfmeta,
+                self.begin_document,
+                self.render_title,
+                self.render_authors,
+                self.render_abstract,
+                self.render_funding,
+                self.maketitle,
+                ]
 
-def render_funding(funds):
-    funding_note = '\n'.join(grant['note']
-            for grant in funds
-            if 'note' in grant)
-    return render_command('thanks', funding_note)
+        if 'noheader' in self.opts:
+            self.opts.remove('noheader')
+        else:
+            self.headers.insert(2, self.extra_header) 
 
+        self.footers.insert(0, self.render_acknowledgements)
+        self.bibstyle = 'alphaurl'
 
-def render_acks(acks):
-    return f'\\subsection*{{Acknowledgements}}\n\n{acks.strip()}\n'
+    def extra_header(self):
+        return HEADER
 
+    def render_pdfmeta(self):
+        authors = self.authors_list(short=True)
+        return f'''\\hypersetup{{%
+        pdftitle  = {{{self.title}}},
+        pdfauthor = {{{authors}}}}}\n'''
 
-def header(data, cname=None, classoptions=[], **kwargs):
-    if cname is None:
-        cname = 'amsart'
+    def render_title(self):
+        shorttitle = self.__dict__.get('shorttitle', '')
+        return render_command('title', self.title, shorttitle)
 
-    if 'noheader' in classoptions:
-        classoptions.remove('noheader')
-        include_header = False
-    else:
-        include_header = True
+    def render_author(self, author):
+        out = render_command('author', author['name'])
+        if 'affiliation' in author:
+            out += render_command('address',
+                ", ".join(value for _, value in author['affiliation'].items()))
+        if 'email' in author:
+            out += render_command('email', author['email'])
+        return out
 
-    headers = [
-        render_command(
-            'documentclass',
-            cname,
-            ','.join(classoptions)),
-        render_encs]
-
-    if include_header:
-        headers.append(HEADER)
-
-    if 'include' in kwargs:
-        headers += [include(file) for file in kwargs['include']]
-
-    shorttitle = data['shorttitle'] if 'shorttitle' in data else ''
-    headers += [
-            render_pdfmeta(data['authors'], data['title']),
-            begin_document,
-            render_command('title', data['title'], shorttitle),
-            '\n'.join(map(render_author, data['authors']))]
-
-    if 'funding' in data:
-        headers.append(render_funding(data['funding']))
-
-    if 'abstract' in data:
-        headers.append(render_abstract(data['abstract']))
-
-    if 'keywords' in data:
-        headers.append(render_keywords(data['keywords']))
-
-    headers += [maketitle, '']
-
-    return '\n'.join(headers)
-
-
-def footer(data, bib):
-    footers = ['']
-    if 'acknowledgements' in data: # and not anonymous:
-        footers.append(render_acks(data['acknowledgements']))
-    if bib:
-        footers.append(render_bib('alphaurl', bib))
-    footers.append(end_document)
-
-    return '\n'.join(footers)
+    def render_acknowledgements(self):
+        try:
+            return r'\subsection*{Acknowledgements}' + '\n\n' + \
+                   self.acknowledgements.strip() + '\n'
+        except AttributeError:
+            return None
