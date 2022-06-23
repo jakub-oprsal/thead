@@ -41,8 +41,9 @@ class AMSart(Article):
                 self.begin_document,
                 self.render_title,
                 self.render_authors,
-                self.render_abstract,
                 self.render_funding,
+                self.render_abstract,
+                self.render_keywords,
                 self.maketitle,
                 ]
 
