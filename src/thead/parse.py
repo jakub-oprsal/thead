@@ -11,7 +11,7 @@ def parse(meta, recipe, args):
     article = Class(
             meta,
             cname=args.cname,
-            anonymouse=args.anonymous,
+            anonymous=args.anonymous,
             classoptions=args.opts,
             include=recipe.header,
             bib=recipe.bib)

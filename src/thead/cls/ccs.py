@@ -12,7 +12,6 @@ def xmltag(tag, content, inline=False):
 class CCS:
     def __init__(self, concepts):
         self.concepts = concepts
-        print(self.concepts)
 
     def tex(self):
         return ''.join(render_command('ccsdesc',
