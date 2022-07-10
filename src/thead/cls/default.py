@@ -102,7 +102,9 @@ class Article:
             return '% no bibliography information\n'
 
     def header(self):
-        yield from (render() for render in self.headers)
+        headers = (f() for f in self.headers if f() is not None)
+        return '\n'.join(headers)
 
     def footer(self):
-        yield from (render() for render in self.footers)
+        footers = (f() for f in self.footers if f() is not None)
+        return '\n'.join(footers)

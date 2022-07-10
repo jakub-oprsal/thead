@@ -50,7 +50,8 @@ class AMSart(Article):
         if 'noheader' in self.opts:
             self.opts.remove('noheader')
         else:
-            self.headers.insert(2, self.extra_header) 
+            self.headers.insert(2, self.render_encs)
+            self.headers.insert(3, self.extra_header)
 
         self.footers.insert(0, self.render_acknowledgements)
         self.bibstyle = 'alphaurl'
@@ -61,8 +62,8 @@ class AMSart(Article):
     def render_pdfmeta(self):
         authors = self.authors_list(short=True)
         return f'''\\hypersetup{{%
-        pdftitle  = {{{self.title}}},
-        pdfauthor = {{{authors}}}}}\n'''
+    pdftitle  = {{{self.title}}},
+    pdfauthor = {{{authors}}}}}\n'''
 
     def render_title(self):
         shorttitle = self.__dict__.get('shorttitle', '')
