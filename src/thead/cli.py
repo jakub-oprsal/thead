@@ -1,7 +1,8 @@
 import sys, codecs, yaml, re
 from itertools import chain
 from argparse import ArgumentParser
-from .parse import parse
+
+from .cls import ArticleCls
 from .recipe import Recipe
 
 
@@ -102,8 +103,9 @@ def main():
         if not recipe.content:
             recipe = Recipe.discover() + recipe
 
+    article = ArticleCls(data, recipe, args)
     with codecs.open(args.out, mode='w', encoding='utf-8') as ofile:
-        for chunk in parse(data, recipe, args):
+        for chunk in article.dump():
             ofile.write(chunk)
 
     print(f'Output written to {args.out}.')

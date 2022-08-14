@@ -1,5 +1,5 @@
-from .default import Article
-from .tex import indent, render_command, render_env, include
+from ..article import Article
+from ..tex import render_command
 
 
 HEADER = r'''\usepackage{tikz}
@@ -27,8 +27,8 @@ HEADER = r'''\usepackage{tikz}
 class AMSart(Article):
     provides = ['amsart']
 
-    def __init__(self, meta, **kwargs):
-        super(AMSart, self).__init__(meta, **kwargs)
+    def __init__(self, meta, recipe, args):
+        super(AMSart, self).__init__(meta, recipe, args)
 
         if self.cname is None:
             self.cname = 'amsart'
@@ -36,7 +36,7 @@ class AMSart(Article):
         self.headers = [
                 self.render_comment,
                 self.render_documentclass,
-                self.includes,
+                self.macro,
                 self.render_pdfmeta,
                 self.begin_document,
                 self.render_title,

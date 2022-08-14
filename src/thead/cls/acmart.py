@@ -1,5 +1,5 @@
-from .default import Article
-from .tex import indent, render_command, render_env, include
+from ..article import Article
+from ..tex import indent, render_command, render_env
 
 
 EXTRA_HEADER = r'''\citestyle{acmauthoryear}
@@ -13,8 +13,8 @@ EXTRA_HEADER = r'''\citestyle{acmauthoryear}
 class ACMart(Article):
     provides = ['acmart']
 
-    def __init__(self, meta, **kwargs):
-        super(ACMart, self).__init__(meta, **kwargs)
+    def __init__(self, meta, recipe, args):
+        super(ACMart, self).__init__(meta, recipe, args)
 
         if self.cname is None:
             self.cname = 'acmart'
@@ -26,7 +26,7 @@ class ACMart(Article):
                 self.render_comment,
                 self.render_documentclass,
                 self.extra_header,
-                self.includes,
+                self.macro,
                 self.render_title,
                 self.render_authors,
                 self.render_ccs2012,

@@ -35,8 +35,6 @@ def short_name(name):
 
 
 def include(filename, end='', soft=False):
-    ''' Includes content of a file. If no extension is given '.tex' is assumed.
-    '''
     if soft is False:
         if not re.match(r'.*\.[a-zA-Z0-9]+', filename):
             filename += '.tex'

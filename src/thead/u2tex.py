@@ -1,3 +1,6 @@
+""" A table for converting utf8 latin characters to latex sequences. """
+
+
 dictionary = {
     'À': r'\`A', 'Á': r"\'A", 'Â': r'\^A', 'Ã': r'\~A', 'Ä': r'\"A',
     'Å': r'\r{A}', 'Æ': r'\AE', 'Ç': r'\c{C}', 'È': r'\`E', 'É': r"\'E",

@@ -1,5 +1,5 @@
-from .default import Article
-from .tex import indent, render_command, render_env, include
+from ..article import Article
+from ..tex import render_command, render_env
 from ..u2tex import u2tex
 
 
@@ -13,8 +13,8 @@ HEADER = r'''\usepackage{amssymb,amsmath}
 class SIAMart(Article):
     provides = ['siamart']
 
-    def __init__(self, meta, **kwargs):
-        super(SIAMart, self).__init__(meta, **kwargs)
+    def __init__(self, meta, recipe, args):
+        super(SIAMart, self).__init__(meta, recipe, args)
 
         if self.cname is None:
             self.cname = 'siamart190516'
@@ -23,7 +23,7 @@ class SIAMart(Article):
                 self.render_comment,
                 self.render_documentclass,
                 self.render_encs,
-                self.includes,
+                self.macro,
                 self.render_title,
                 self.render_authors,
                 self.begin_document,

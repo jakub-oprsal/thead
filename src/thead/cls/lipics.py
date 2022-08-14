@@ -1,12 +1,12 @@
-from .default import Article
-from .tex import indent, render_command, render_env, include
+from ..article import Article
+from ..tex import render_command
 
 
 class LIPIcs(Article):
     provides = ['lipics', 'lipics-v2021']
 
-    def __init__(self, meta, **kwargs):
-        super(LIPIcs, self).__init__(meta, **kwargs)
+    def __init__(self, meta, recipe, args):
+        super(LIPIcs, self).__init__(meta, recipe, args)
 
         if self.cname is None:
             self.cname = 'lipics-v2021'
@@ -18,13 +18,15 @@ class LIPIcs(Article):
         # raise AttributeError if missing
         _ = self.abstract, self.keywords
 
-        #\hideLIPIcs  %to remove references to LIPIcs series (logo, DOI, ...), e.g. when preparing a pre-final version to be uploaded to arXiv or another public repository
-        #%\nolinenumbers %uncomment to disable line numbering
+        #\hideLIPIcs     % to remove references to LIPIcs series (logo, DOI,
+        #                % ...), e.g. when preparing a pre-final version to be
+        #                % uploaded to arXiv or another public repository
+        #%\nolinenumbers % uncomment to disable line numbering
 
         self.headers = [
                 self.render_comment,
                 self.render_documentclass,
-                self.includes,
+                self.macro,
                 self.render_title,
                 self.render_shorttitle,
                 self.render_authors,
