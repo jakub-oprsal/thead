@@ -50,7 +50,7 @@ class AMSart(Article):
     def render_pdfmeta(self):
         authors = self.authors_list(short=True)
         return '\\hypersetup{%\n' \
-               f'  pdftitle  = {{{self.title}}}\n' \
+               f'  pdftitle  = {{{self.title}}},\n' \
                f'  pdfauthor = {{{authors}}}}}\n'
 
     def render_title(self):
