@@ -1,41 +1,20 @@
-from ..article import Article
+from .article import Article
 from ..tex import render_command
-
-
-HEADER = r'''\usepackage{tikz}
-\definecolor{purple}{cmyk}{0.55,1,0,0.15}
-\definecolor{darkblue}{cmyk}{1,0.58,0,0.21}
-\usepackage[colorlinks,
-  linkcolor=black,
-  urlcolor=darkblue,
-  citecolor=purple]{hyperref}
-\urlstyle{same}
-
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{corollary}[theorem]{Corollary}
-\newtheorem{conjecture}[theorem]{Conjecture}
-\newtheorem{claim}[theorem]{Claim}
-\theoremstyle{definition}
-\newtheorem{definition}[theorem]{Definition}
-\newtheorem{example}[theorem]{Example}
-\newtheorem{remark}[theorem]{Remark}
-'''
 
 
 class AMSart(Article):
     provides = ['amsart']
 
-    def __init__(self, meta, recipe, args):
-        super(AMSart, self).__init__(meta, recipe, args)
-
+    def setup(self):
         if self.cname is None:
             self.cname = 'amsart'
 
-        self.headers = [
-                self.render_comment,
-                self.render_documentclass,
+        if 'noheader' in self.opts:
+            self.opts.remove('noheader')
+        else:
+            self.headers += [self.render_encs, self.extra_header]
+
+        self.headers += [
                 self.macro,
                 self.render_pdfmeta,
                 self.begin_document,
@@ -47,23 +26,32 @@ class AMSart(Article):
                 self.maketitle,
                 ]
 
-        if 'noheader' in self.opts:
-            self.opts.remove('noheader')
-        else:
-            self.headers.insert(2, self.render_encs)
-            self.headers.insert(3, self.extra_header)
-
         self.footers.insert(0, self.render_acknowledgements)
         self.bibstyle = 'alphaurl'
 
     def extra_header(self):
-        return HEADER
+        header = render_command(
+                'usepackage',
+                'hyperref',
+                'colorlinks, citecolor=blue, linkcolor=black, urlcolor=red')
+        header += render_command('urlstyle', 'same')
+        header += '\\newtheorem{theorem}{Theorem}[section]\n' \
+                  '\\newtheorem{lemma}[theorem]{Lemma}\n' \
+                  '\\newtheorem{proposition}[theorem]{Proposition}\n' \
+                  '\\newtheorem{corollary}[theorem]{Corollary}\n' \
+                  '\\newtheorem{conjecture}[theorem]{Conjecture}\n' \
+                  '\\newtheorem{claim}[theorem]{Claim}\n' \
+                  '\\theoremstyle{definition}\n' \
+                  '\\newtheorem{definition}[theorem]{Definition}\n' \
+                  '\\newtheorem{example}[theorem]{Example}\n' \
+                  '\\newtheorem{remark}[theorem]{Remark}\n'
+        return header
 
     def render_pdfmeta(self):
         authors = self.authors_list(short=True)
-        return f'''\\hypersetup{{%
-    pdftitle  = {{{self.title}}},
-    pdfauthor = {{{authors}}}}}\n'''
+        return '\\hypersetup{%\n' \
+               f'  pdftitle  = {{{self.title}}}\n' \
+               f'  pdfauthor = {{{authors}}}}}\n'
 
     def render_title(self):
         shorttitle = self.__dict__.get('shorttitle', '')
@@ -78,9 +66,12 @@ class AMSart(Article):
             out += render_command('email', author['email'])
         return out
 
-    def render_acknowledgements(self):
-        try:
-            return r'\subsection*{Acknowledgements}' + '\n\n' + \
-                   self.acknowledgements.strip() + '\n'
-        except AttributeError:
+    def render_authors(self):
+        return '\n'.join(map(self.render_author, self.authors))
+
+    def render_funding(self):
+        note = self.funding_note()
+        if note is not None:
+            return render_command('thanks', note)
+        else:
             return None

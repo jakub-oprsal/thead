@@ -1,21 +1,19 @@
-from ..article import Article
+from .amsart import AMSart
+from .acmart import CCS
 from ..tex import render_command
 
 
-class LIPIcs(Article):
-    provides = ['lipics', 'lipics-v2021']
+class LIPIcs(AMSart):
+    provides = ['lipics','lipics-v2021']
 
-    def __init__(self, meta, recipe, args):
-        super(LIPIcs, self).__init__(meta, recipe, args)
-
+    def setup(self):
         if self.cname is None:
-            self.cname = 'lipics-v2021'
+            self.cname = 'lipics-v2021' if self.cls == 'lipics' else self.cls
 
         if self.anonymous and 'anonymous' not in self.opts:
             self.opts.append('anonymous')
 
-        # abstract and keywords are mandatory
-        # raise AttributeError if missing
+        # abstract and keywords are mandatory; raise AttributeError if missing
         _ = self.abstract, self.keywords
 
         #\hideLIPIcs     % to remove references to LIPIcs series (logo, DOI,
@@ -23,9 +21,7 @@ class LIPIcs(Article):
         #                % uploaded to arXiv or another public repository
         #%\nolinenumbers % uncomment to disable line numbering
 
-        self.headers = [
-                self.render_comment,
-                self.render_documentclass,
+        self.headers += [
                 self.macro,
                 self.render_title,
                 self.render_shorttitle,
@@ -77,7 +73,17 @@ class LIPIcs(Article):
         return render_command('Copyright', self.authors_list())
 
     def render_funding(self):
-        return super().render_funding(command='funding')
+        note = self.funding_note()
+        if note is not None:
+            return render_command('funding', note)
+        else:
+            return None
 
     def render_acknowledgements(self):
         return render_command('acknowledgements', self.acknowledgements)
+
+    def render_ccs2012(self):
+        try:
+            return CCS(self.ccs2012['concepts']).render()
+        except AttributeError:
+            return None

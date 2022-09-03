@@ -1,30 +1,47 @@
-from ..article import Article
+from .amsart import AMSart
 from ..tex import indent, render_command, render_env
 
 
-EXTRA_HEADER = r'''\citestyle{acmauthoryear}
-\setcitestyle{nosort}
-\AtEndPreamble{%
-    \theoremstyle{acmdefinition}
-    \newtheorem{claim}{Claim}[theorem]}
-'''
+def xmltag(tag, content, inline=False):
+    if inline:
+        return f'<{tag}>{content}</{tag}>\n'
+    else:
+        text = indent(''.join(content))
+        return f'<{tag}>\n{text}</{tag}>\n'
 
 
-class ACMart(Article):
+class CCS:
+    def __init__(self, concepts):
+        self.concepts = concepts
+
+    def tex(self):
+        return ''.join(render_command('ccsdesc',
+                                      concept['desc'],
+                                      concept.get('significance'))
+                       for concept in self.concepts)
+
+    def _xml_concept(self, concept):
+        return xmltag('concept', (xmltag(f'concept_{key}', value, inline=True)
+                                  for key, value in concept.items()))
+
+    def xml(self):
+        return xmltag('ccs2012', map(self._xml_concept, self.concepts))
+
+    def render(self):
+        return render_env('CCSXML', self.xml().strip()) + self.tex()
+
+
+class ACMart(AMSart):
     provides = ['acmart']
 
-    def __init__(self, meta, recipe, args):
-        super(ACMart, self).__init__(meta, recipe, args)
-
+    def setup(self):
         if self.cname is None:
             self.cname = 'acmart'
 
         if self.anonymous and 'anonymous' not in self.opts:
             self.opts.append('anonymous')
 
-        self.headers = [
-                self.render_comment,
-                self.render_documentclass,
+        self.headers += [
                 self.extra_header,
                 self.macro,
                 self.render_title,
@@ -41,7 +58,11 @@ class ACMart(Article):
         self.bibstyle = 'ACM-Reference-Format'
 
     def extra_header(self):
-        return EXTRA_HEADER
+        return '\\citestyle{acmauthoryear}\n' \
+               '\\setcitestyle{nosort}\n' \
+               '\\AtEndPreamble{%\n' \
+               '    \\theoremstyle{acmdefinition}\n' \
+               '    \\newtheorem{claim}[theorem]{Claim}}\n'
 
     def render_author(self, author):
         out = render_command('author', author['name'])
@@ -60,5 +81,11 @@ class ACMart(Article):
     def render_acknowledgements(self):
         try:
             return render_env('acks', self.acknowledgements)
+        except AttributeError:
+            return None
+
+    def render_ccs2012(self):
+        try:
+            return CCS(self.ccs2012['concepts']).render()
         except AttributeError:
             return None

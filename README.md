@@ -2,7 +2,7 @@
 
 This package generates LaTeX headers from a yaml metadata file. The intended use is to ease preparation of submissions to various (mostly math and tcs) conferences and journals. It is still very much work in progress, and I am personally actively using it, so it can change at moments notice.
 
-Currently supported LaTeX classes are: **acmart**, **lipics**, **siamart**, and **amsart**.
+Currently supported LaTeX classes are: **article**, **acmart**, **lipics**, **siamart**, and **amsart**.
 
 
 ## The problem and philosophy
