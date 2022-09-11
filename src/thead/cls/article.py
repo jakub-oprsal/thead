@@ -181,7 +181,8 @@ class Article:
         _include = lambda fn: include(fn, end='\n', soft=not self.include)
         content = map(_include, self.recipe.content)
         if self.recipe.appendix:
-            appendix = chain(('\n\\appendix\n',), map(_include, self.recipe.content))
+            appendix = chain(('\n\\appendix\n',), map(_include,
+                self.recipe.appendix))
         else:
             appendix = ()
         return chain(content, appendix)
