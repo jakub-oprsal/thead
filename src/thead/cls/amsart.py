@@ -61,7 +61,7 @@ class AMSart(Article):
         out = render_command('author', author['name'])
         if 'affiliation' in author:
             out += render_command('address',
-                ", ".join(value for _, value in author['affiliation'].items()))
+                ", ".join(str(value) for _, value in author['affiliation'].items()))
         if 'email' in author:
             out += render_command('email', author['email'])
         return out
@@ -70,8 +70,19 @@ class AMSart(Article):
         return '\n'.join(map(self.render_author, self.authors))
 
     def render_funding(self):
-        note = self.funding_note()
-        if note is not None:
-            return render_command('thanks', note)
-        else:
+        try:
+            note = self.note
+        except AttributeError:
+            note = None
+
+        funding = self.funding_note()
+        if funding is not None:
+            if note is not None:
+                note += '\\\\\n\\indent ' + funding
+            else:
+                note = funding
+
+        if not note:
             return None
+        else:
+            return render_command('thanks',note)

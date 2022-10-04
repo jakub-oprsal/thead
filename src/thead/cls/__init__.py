@@ -6,6 +6,7 @@ from .acmart import ACMart
 from .amsart import AMSart
 from .lipics import LIPIcs
 from .siamart import SIAMart
+from .ieeetran import IEEEtran
 
 
 def identify_class(cls):
@@ -13,7 +14,8 @@ def identify_class(cls):
                   ACMart,
                   AMSart,
                   LIPIcs,
-                  SIAMart]:
+                  SIAMart,
+                  IEEEtran]:
         if cls in Class.provides:
             return Class
     raise Exception(f"Unrecognised class '{cls}'!")

@@ -51,7 +51,7 @@ class LIPIcs(AMSart):
     def render_author(self, author):
         name = author['name']
         if 'affiliation' in author:
-            institution = ', '.join(value for _, value in
+            institution = ', '.join(str(value) for _, value in
                     author['affiliation'].items())
         else:
             institution = ''
