@@ -20,13 +20,24 @@ class IEEEtran(Article):
                 self.render_keywords
                 ]
 
+        if self.anonymous:
+            self.headers[4] = self.anon_title
+            self.headers[5] = self.anon_authors
+
         if 'noheader' in self.opts:
             self.opts.remove('noheader')
         else:
             self.headers.insert(3, self.extra_header)
 
-        self.footers.insert(0, self.render_acknowledgements)
+        if not self.anonymous:
+            self.footers.insert(0, self.render_acknowledgements)
         self.bibstyle = 'IEEEtran'
+
+    def anon_authors(self):
+        return render_command('author', 'Anonymous Author(s)')
+
+    def anon_title(self):
+        return render_command('title', self.title)
 
     def extra_header(self):
         header = render_command('usepackage', 'amsmath, amssymb, amsthm')
