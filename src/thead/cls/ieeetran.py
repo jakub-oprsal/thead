@@ -1,5 +1,5 @@
 from .article import Article
-from ..tex import indent, render_command, render_env
+from ..tex import render_command, render_env, join_and
 
 
 class IEEEtran(Article):
@@ -55,17 +55,28 @@ class IEEEtran(Article):
         return header
 
     def render_author(self, author):
-        addr = author['affiliation']
-        add = []
-        if 'department' in addr:
-            add.append(addr['department'])
-        if 'institution' in addr:
-            add.append(addr['institution'])
-        add.append(addr['city'] + ', ' + addr['country'])
-        add.append('Email: {}'.format(author['email']))
+        if 'conference' in self.opts:
+            addr = author['affiliation']
+            add = []
+            if 'department' in addr:
+                add.append(addr['department'])
+            if 'institution' in addr:
+                add.append(addr['institution'])
+            add.append(addr['city'] + ', ' + addr['country'])
+            add.append('Email: {}'.format(author['email']))
 
-        return render_command('IEEEauthorblockN', author['name']) + \
-               render_command('IEEEauthorblockA', '\\\\\n'.join(add))
+            return render_command('IEEEauthorblockN', author['name']) + \
+                render_command('IEEEauthorblockA', '\\\\\n'.join(add))
+        else:
+            return author['name']
+
+    def render_authors(self):
+        if 'conference' in self.opts:
+            return Article.render_authors(self)
+        else:
+            return render_command('author',
+                                  join_and(map(self.render_author,
+                                               self.authors)))
 
     def render_keywords(self):
         try:
