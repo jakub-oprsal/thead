@@ -7,9 +7,9 @@ def indent(lines):
     return textwrap_indent(lines, "  ")
 
 
-def render_command(command, a, b=''):
+def render_command(command, a, b='', end='\n'):
     atr = f'[{b}]' if b != '' else ''
-    return f'\\{command}{atr}{{{a}}}\n'
+    return f'\\{command}{atr}{{{a}}}{end}'
 
 
 def render_env(envname, content):

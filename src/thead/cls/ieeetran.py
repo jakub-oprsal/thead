@@ -1,5 +1,6 @@
+from itertools import chain
 from .article import Article
-from ..tex import render_command, render_env, join_and
+from ..tex import render_command, render_env, join_and, include
 
 
 class IEEEtran(Article):
@@ -84,6 +85,28 @@ class IEEEtran(Article):
         except AttributeError:
             return None
 
+    def body(self):
+        _include = lambda fn: include(fn, end='\n', soft=not self.include)
+        content = map(_include, self.recipe.content)
+        if self.recipe.appendix:
+            appendix = chain(('\n\\appendices\n',), map(_include,
+                self.recipe.appendix))
+        else:
+            appendix = ()
+        return chain(content, appendix)
 
+    def render_acknowledgements(self):
+        if not self.anonymous:
+            acks = []
+            try:
+                acks.append(self.acknowledgements.strip() + '\n')
+            except AttributeError:
+                pass
+            if 'conference' in self.opts and self.funding_note is not None:
+                acks.append(self.funding_note())
+            if acks != []:
+                acks.insert(0, r'\subsection*{Acknowledgements}'"\n")
+                return '\n'.join(acks)
+        return None
 
 

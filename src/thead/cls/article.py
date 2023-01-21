@@ -114,7 +114,9 @@ class Article:
     def render_title(self):
         title = u2tex(self.title)
         if hasattr(self, 'funding'):
-            title += '%\n' + render_command('thanks', self.funding_note())
+            title += '%\n' + render_command('thanks',
+                                            self.funding_note(),
+                                            end='%\n')
         return render_command('title', title)
 
     def render_address(self, addr):
