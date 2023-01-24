@@ -76,7 +76,8 @@ class Article:
         return render_command('end', 'document')
 
     def macro(self):
-        return ''.join((include(file) for file in self.recipe.header))
+        _include = lambda fn: include(fn, end='', soft=not self.include)
+        return ''.join(map(_include, self.recipe.header))
 
     def extra_header(self):
         header = render_command(
