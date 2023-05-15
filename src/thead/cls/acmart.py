@@ -38,6 +38,9 @@ class ACMart(AMSart):
         if self.cname is None:
             self.cname = 'acmart'
 
+        if self.bibstyle is None:
+            self.bibstyle = 'ACM-Reference-Format'
+
         if self.anonymous and 'anonymous' not in self.opts:
             self.opts.append('anonymous')
 
@@ -55,7 +58,6 @@ class ACMart(AMSart):
                 ]
         
         self.footers.insert(0, self.render_acknowledgements)
-        self.bibstyle = 'ACM-Reference-Format'
 
     def extra_header(self):
         return '\\citestyle{acmauthoryear}\n' \

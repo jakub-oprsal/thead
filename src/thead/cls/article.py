@@ -11,6 +11,7 @@ class Article:
     def __init__(self, meta, recipe, args):
         self.cls = args.cls
         self.cname = args.cname
+        self.bibstyle = args.bibstyle
         self.anonymous = args.anonymous
         self.opts = args.opts
         self.include = args.include
@@ -25,7 +26,9 @@ class Article:
     def setup(self):
         if self.cname is None:
             self.cname = 'article'
-        self.bibstyle = 'plainurl'
+
+        if self.bibstyle is None:
+            self.bibstyle = 'plainurl'
 
         self.headers += [
                 self.render_encs,
@@ -114,7 +117,7 @@ class Article:
 
     def render_title(self):
         title = u2tex(self.title)
-        if hasattr(self, 'funding'):
+        if hasattr(self, 'funding') and not self.anonymous:
             title += '%\n' + render_command('thanks',
                                             self.funding_note(),
                                             end='%\n')
@@ -144,9 +147,12 @@ class Article:
         return '\\\\\n'.join(author_lns)
 
     def render_authors(self):
-        return render_command('author',
-                              '\\and\n'.join(self.render_author(author)
-                                               for author in self.authors))
+        if not self.anonymous:
+            return render_command('author',
+                                  '\\and\n'.join(self.render_author(author)
+                                                 for author in self.authors))
+        else:
+            return render_command('author', 'Anonymous Author(s)')
 
     def render_abstract(self):
         try:

@@ -10,6 +10,9 @@ class IEEEtran(Article):
         if self.cname is None:
             self.cname = 'IEEEtran'
 
+        if self.bibstyle is None:
+            self.bibstyle = 'IEEEtran'
+
         self.headers += [
                 self.render_encs,
                 self.macro,
@@ -32,7 +35,6 @@ class IEEEtran(Article):
 
         if not self.anonymous:
             self.footers.insert(0, self.render_acknowledgements)
-        self.bibstyle = 'IEEEtran'
 
     def anon_authors(self):
         return render_command('author', 'Anonymous Author(s)')

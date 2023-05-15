@@ -66,6 +66,11 @@ def get_args(args):
             default = [])
 
     parser.add_argument(
+            "--bibstyle",
+            help = "Custom bibliography style",
+            default = None)
+
+    parser.add_argument(
             "--recipe",
             help = "Recipe in a yaml file",
             default = None)

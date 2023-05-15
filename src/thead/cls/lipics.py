@@ -10,6 +10,9 @@ class LIPIcs(AMSart):
         if self.cname is None:
             self.cname = 'lipics-v2021' if self.cls == 'lipics' else self.cls
 
+        if self.bibstyle is None:
+            self.bibstyle = 'plainurl'
+
         if self.anonymous and 'anonymous' not in self.opts:
             self.opts.append('anonymous')
 
@@ -37,7 +40,6 @@ class LIPIcs(AMSart):
                 self.render_abstract,
                 ]
 
-        self.bibstyle = 'plainurl'
 
     def render_title(self):
         return render_command('title', self.title)

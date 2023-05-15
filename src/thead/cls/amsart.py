@@ -9,6 +9,9 @@ class AMSart(Article):
         if self.cname is None:
             self.cname = 'amsart'
 
+        if self.bibstyle is None:
+            self.bibstyle = 'amsalpha'
+
         if 'noheader' in self.opts:
             self.opts.remove('noheader')
         else:
@@ -27,7 +30,6 @@ class AMSart(Article):
                 ]
 
         self.footers.insert(0, self.render_acknowledgements)
-        self.bibstyle = 'alphaurl'
 
     def extra_header(self):
         header = render_command(
@@ -67,9 +69,15 @@ class AMSart(Article):
         return out
 
     def render_authors(self):
-        return '\n'.join(map(self.render_author, self.authors))
+        if not self.anonymous:
+            return '\n'.join(map(self.render_author, self.authors))
+        else:
+            return render_command('author', 'Anonymous Author(s)')
 
     def render_funding(self):
+        if self.anonymous:
+            return None
+
         try:
             note = self.note
         except AttributeError:
@@ -85,4 +93,4 @@ class AMSart(Article):
         if not note:
             return None
         else:
-            return render_command('thanks',note)
+            return render_command('thanks', note)
