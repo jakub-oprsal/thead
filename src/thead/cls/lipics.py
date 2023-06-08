@@ -50,6 +50,9 @@ class LIPIcs(AMSart):
         except AttributeError:
             return None
 
+    def render_authors(self):
+        return '\n'.join(map(self.render_author, self.authors))
+
     def render_author(self, author):
         name = author['name']
         if 'affiliation' in author:

@@ -50,7 +50,10 @@ class AMSart(Article):
         return header
 
     def render_pdfmeta(self):
-        authors = self.authors_list(short=True)
+        if not self.anonymous:
+            authors = self.authors_list(short=True)
+        else:
+            authors = "Anonymous Author(s)"
         return '\\hypersetup{%\n' \
                f'  pdftitle  = {{{self.title}}},\n' \
                f'  pdfauthor = {{{authors}}}}}\n'

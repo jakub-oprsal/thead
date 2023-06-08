@@ -19,7 +19,10 @@ class SIAMart(Article):
             title = self.shorttitle
         except AttributeError:
             title = self.title
-        authors = u2tex(self.authors_list(short=True))
+        if not self.anonymous:
+            authors = u2tex(self.authors_list(short=True))
+        else:
+            authors = "Anonymous Author(s)"
         return f'\\headers{{{title}}}{{{authors}}}'
 
     def render_keywords(self):
@@ -43,13 +46,15 @@ class SIAMart(Article):
             note = self.note
         except AttributeError:
             note = ''
-        try:
-            funding = '\n'.join(u2tex(grant['note'])
-                                for grant in self.funding
-                                if 'note' in grant)
-            note += render_command('funding', funding)
-        except AttributeError:
-            pass
+
+        if not self.anonymous:
+            try:
+                funding = '\n'.join(u2tex(grant['note'])
+                                    for grant in self.funding
+                                    if 'note' in grant)
+                note += render_command('funding', funding)
+            except AttributeError:
+                pass
         return note
 
     def render_title(self):
@@ -64,4 +69,5 @@ class SIAMart(Article):
                '\\newsiamthm{claim}{Claim}\n' \
                '\\newsiamthm{conjecture}{Conjecture}\n' \
                '\\newsiamremark{example}{Example}\n' \
-               '\\newsiamremark{remark}{Remark}\n'
+               '\\newsiamremark{remark}{Remark}\n' \
+               '\\let\\qedhere\\relax\n'

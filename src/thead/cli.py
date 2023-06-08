@@ -101,10 +101,11 @@ def main():
     with open(args.filename, 'r') as f:
         data = yaml.safe_load(f)
 
+    recipe = Recipe(args.header, args.content, args.appendix, args.bib)
+
     if args.recipe is not None:
-        recipe = Recipe.read(args.recipe)
+        recipe = Recipe.read(args.recipe) + recipe
     else:
-        recipe = Recipe(args.header, args.content, args.appendix, args.bib)
         if not recipe.content:
             recipe = Recipe.discover() + recipe
 
