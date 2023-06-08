@@ -9,34 +9,34 @@ class Recipe:
         self.bib = list(bib)
 
     @classmethod
-    def discover(cls, path='.'):
-        ''' Discovers files with the content of the document. '''
+    def discover(cls, path="."):
+        """Discovers files with the content of the document."""
         header, content, appendix, bib = ([] for _ in range(4))
         for direntry in os.scandir(path):
             try:
-                fmatch = re.match(r'(.+)\.(tex|bib)', direntry.name)
+                fmatch = re.match(r"(.+)\.(tex|bib)", direntry.name)
                 if not direntry.is_file() or not fmatch:
                     continue
             except OSError:
                 continue
 
             name, ftype = fmatch.group(1), fmatch.group(2)
-            if ftype == 'bib':
+            if ftype == "bib":
                 bib.append(name)
-            elif ftype == 'tex':
-                if name == 'macro':
-                    header.append('macro')
-                elif re.match(r'(content|[0-9]+[_-])', name):
+            elif ftype == "tex":
+                if name == "macro":
+                    header.append("macro")
+                elif re.match(r"(content|[0-9]+[_-])", name):
                     content.append(name)
-                elif re.match(r'(appendix|[A-Z]+[_-])', name):
+                elif re.match(r"(appendix|[A-Z]+[_-])", name):
                     appendix.append(name)
 
-        if 'content' in content:
-            content = ['content']
+        if "content" in content:
+            content = ["content"]
         else:
             content.sort()
-        if 'appendix' in appendix:
-            appendix = ['appendix']
+        if "appendix" in appendix:
+            appendix = ["appendix"]
         else:
             appendix.sort()
 
@@ -44,13 +44,15 @@ class Recipe:
 
     @classmethod
     def read(cls, yamlfile):
-        ''' Reads a recipe from a yaml file. '''
-        with open(yamlfile, 'r') as f:
+        """Reads a recipe from a yaml file."""
+        with open(yamlfile, "r") as f:
             data = yaml.safe_load(f)
-        return cls(data.get('header', []),
-                   data.get('content', []),
-                   data.get('appendix', []),
-                   data.get('bib', []))
+        return cls(
+            data.get("header", []),
+            data.get("content", []),
+            data.get("appendix", []),
+            data.get("bib", []),
+        )
 
     def __add__(self, other):
         if type(self) != type(other):

@@ -1,2 +1,3 @@
-''' Processes yaml metadata to produce headers of a TeX file.
-'''
+"""
+Processes yaml metadata to produce headers of a TeX file.
+"""
