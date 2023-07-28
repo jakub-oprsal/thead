@@ -88,7 +88,10 @@ class LIPIcs(AMSart):
             return None
 
     def render_acknowledgements(self):
-        return render_command("acknowledgements", self.acknowledgements)
+        try:
+            return render_command("acknowledgements", self.acknowledgements)
+        except AttributeError:
+            return None
 
     def render_ccs2012(self):
         try:
