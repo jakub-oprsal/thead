@@ -62,9 +62,8 @@ class ACMart(AMSart):
             self.render_funding,
             self.begin_document,
             self.maketitle,
+            self.render_acknowledgements,
         ]
-
-        self.footers.insert(0, self.render_acknowledgements)
 
     def extra_header(self):
         return (
