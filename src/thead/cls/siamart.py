@@ -31,6 +31,24 @@ class SIAMart(Article):
         except AttributeError:
             return None
 
+    def render_address(self, addr):
+        out = []
+        if "department" in addr:
+            out.append(addr["department"])
+        if "institution" in addr:
+            out.append(addr["institution"])
+        if "street" in addr:
+            out.append(addr["street"])
+        if "city" in addr:
+            out.append(addr["city"])
+            if "postcode" in addr:
+                out[-1] += " " + addr["postcode"]
+        if "state" in addr:
+            out.append(addr["state"])
+        if "country" in addr:
+            out.append(addr["country"])
+        return ", ".join(out)
+
     def render_author(self, author):
         thanks = []
         if "affiliation" in author:
