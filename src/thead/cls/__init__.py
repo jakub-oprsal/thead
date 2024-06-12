@@ -7,6 +7,7 @@ from .amsart import AMSart
 from .lipics import LIPIcs
 from .siamart import SIAMart
 from .ieeetran import IEEEtran
+from .snkart import SNKart
 
 
 def identify_class(cls):
@@ -17,6 +18,7 @@ def identify_class(cls):
         LIPIcs,
         SIAMart,
         IEEEtran,
+        SNKart,
     ]:
         if cls in Class.provides:
             return Class
