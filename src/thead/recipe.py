@@ -28,7 +28,7 @@ class Recipe:
                     header.append("macro")
                 elif re.match(r"(content|[0-9]+[_-])", name):
                     content.append(name)
-                elif re.match(r"(appendix|[A-Z]+[_-])", name):
+                elif re.match(r"(appendix|[A-Za-z][_-])", name):
                     appendix.append(name)
 
         if "content" in content:
