@@ -4,32 +4,14 @@ from ..tex import render_command
 
 class AMSart(Article):
     provides = ["amsart"]
+    cname_ = "amsart"
+    bibstyle_ = "amsalpha"
 
     def setup(self):
-        if self.cname is None:
-            self.cname = "amsart"
-
-        if self.bibstyle is None:
-            self.bibstyle = "amsalpha"
-
-        if "noheader" in self.opts:
-            self.opts.remove("noheader")
-        else:
-            self.headers += [self.render_encs, self.extra_header]
-
-        self.headers += [
-            self.macro,
-            self.render_pdfmeta,
-            self.begin_document,
-            self.render_title,
-            self.render_authors,
-            self.render_funding,
-            self.render_abstract,
-            self.render_keywords,
-            self.maketitle,
-        ]
-
-        self.footers.insert(0, self.render_acknowledgements)
+        self.TeXauthors = self.render_authors()
+        self.TeXtitle = self.render_title()
+        self.thanks = self.funding_note()
+        self.abstract = self.abstract.strip()
 
     def extra_header(self):
         header = render_command(
@@ -85,24 +67,3 @@ class AMSart(Article):
             return "\n".join(map(self.render_author, self.authors))
         else:
             return render_command("author", "Anonymous Author(s)")
-
-    def render_funding(self):
-        if self.anonymous:
-            return None
-
-        try:
-            note = self.note
-        except AttributeError:
-            note = None
-
-        funding = self.funding_note()
-        if funding is not None:
-            if note is not None:
-                note += "\\\\\n\\indent " + funding
-            else:
-                note = funding
-
-        if not note:
-            return None
-        else:
-            return render_command("thanks", note)

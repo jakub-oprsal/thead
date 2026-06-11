@@ -71,7 +71,8 @@ class ACMart(AMSart):
             "\\setcitestyle{nosort}\n"
             "\\AtEndPreamble{%\n"
             "    \\theoremstyle{acmdefinition}\n"
-            "    \\newtheorem{claim}[theorem]{Claim}}\n"
+            "    \\newtheorem{claim}[theorem]{Claim}\n"
+            "    \\newtheorem{remark}[theorem]{Remark}}\n"
         )
 
     def render_author(self, author):

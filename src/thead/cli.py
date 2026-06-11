@@ -86,6 +86,14 @@ def get_args(args):
         action="store_true",
     )
 
+    parser.add_argument(
+        "--omit-default-header",
+        help="Omit defining standard theorem environments",
+        dest="noheader",
+        action="store_true",
+    )
+
+
     pargs = parser.parse_args(args)
     if pargs.out is None:
         m = re.match(r"(.*)\.[a-zA-Z]*", pargs.filename)
@@ -110,8 +118,6 @@ def main():
             recipe = Recipe.discover() + recipe
 
     article = Article(data, recipe, args)
-    with codecs.open(args.out, mode="w", encoding="utf-8") as ofile:
-        for chunk in article.dump():
-            ofile.write(chunk)
+    article.dump(args.out)
 
     print(f"Output written to {args.out}.")
